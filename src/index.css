@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* Dark mode dikontrol lewat class .dark di <html> (toggle manual),
+   bukan cuma ngikutin prefers-color-scheme browser. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Aksen warna ikut logo IAPA asli (IAPA-Store/public/logo-iapa.png):
+   navy dari peta Indonesia, orange dari huruf "IAPA". */
+@theme {
+  --color-brand-navy: #194582;
+  --color-brand-navy-dark: #102c54;
+  --color-brand-orange: #f78e10;
+  --color-brand-orange-dark: #d9740a;
+  /* Latar dark mode: navy gelap (senada logo), bukan abu-abu generik */
+  --color-brand-dark: #0d1b30;
+  --color-brand-dark-surface: #132544;
+}
+
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-up {
+  animation: fade-slide-up 0.6s ease-out both;
+}

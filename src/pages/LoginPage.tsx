@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { useAuthStore } from '../stores/authStore'
+import { ThemeToggle } from '../components/ThemeToggle'
+import logo from '../assets/logo-iapa.png'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
@@ -18,7 +20,7 @@ export function LoginPage() {
     try {
       const { data } = await api.post('/auth/login', { username, password })
       setAuth(data.accessToken, data.user)
-      navigate('/')
+      navigate('/dashboard')
     } catch {
       setError('Username atau password salah')
     } finally {
@@ -27,33 +29,48 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-6 text-xl font-bold text-blue-700">newocs — Login</h1>
-        {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
-        <label className="mb-1 block text-sm font-medium text-gray-700">Username</label>
-        <input
-          className="mb-4 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
-        <input
-          type="password"
-          className="mb-6 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-blue-700 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-50"
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-brand-dark">
+      <header className="flex items-center justify-between p-4">
+        <Link to="/" className="text-sm font-medium text-gray-500 hover:text-brand-navy dark:text-gray-400 dark:hover:text-brand-orange">
+          ← Beranda
+        </Link>
+        <ThemeToggle />
+      </header>
+      <div className="flex flex-1 items-center justify-center p-4">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-brand-dark-surface sm:p-8"
         >
-          {loading ? 'Memproses...' : 'Login'}
-        </button>
-      </form>
+          <img src={logo} alt="IAPA" className="mb-6 h-9 w-auto" />
+          {error && (
+            <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
+              {error}
+            </p>
+          )}
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+          <input
+            className="mb-4 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+          <input
+            type="password"
+            className="mb-6 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-brand-navy py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+          >
+            {loading ? 'Memproses...' : 'Login'}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

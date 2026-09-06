@@ -19,7 +19,7 @@ export const MENU: MenuGroup[] = [
   {
     group: 'Utama',
     items: [
-      { label: 'Dashboard', path: '/', roles: ['Admin', 'Peserta', 'Manager', 'Admin_Keuangan'] },
+      { label: 'Dashboard', path: '/dashboard', roles: ['Admin', 'Peserta', 'Manager', 'Admin_Keuangan'] },
     ],
   },
   {
