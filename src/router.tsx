@@ -11,6 +11,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { ConferencePage } from './pages/ConferencePage'
 import { SchedulePage } from './pages/SchedulePage'
 import { AttendancePage } from './pages/AttendancePage'
+import { SubmitPaperPage } from './pages/SubmitPaperPage'
 import { ReviewPaperPage } from './pages/ReviewPaperPage'
 import { AssignReviewerPage } from './pages/AssignReviewerPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -27,6 +28,7 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/conferences': <ConferencePage />,
   '/schedules': <SchedulePage />,
   '/attendance': <AttendancePage />,
+  '/papers/submit': <SubmitPaperPage />,
   '/papers/review': <ReviewPaperPage />,
   '/papers/assign-reviewer': <AssignReviewerPage />,
   '/admin/settings': <SettingsPage />,
