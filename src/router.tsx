@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage'
 import { EventHistoryPage } from './pages/EventHistoryPage'
 import { EventDetailPage } from './pages/EventDetailPage'
 import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ConferencePage } from './pages/ConferencePage'
 import { SchedulePage } from './pages/SchedulePage'
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
   { path: '/event-history', element: <EventHistoryPage /> },
   { path: '/event-history/:id', element: <EventDetailPage /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
   {
     element: <ProtectedRoute />,
     children: [

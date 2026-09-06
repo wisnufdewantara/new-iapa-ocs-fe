@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface Conference {
   conference_id: string
@@ -9,6 +10,7 @@ interface Conference {
 }
 
 export function DashboardPage() {
+  usePageTitle('Dashboard')
   const { data, isLoading, error } = useQuery({
     queryKey: ['conferences'],
     queryFn: async () => (await api.get<Conference[]>('/conferences')).data,

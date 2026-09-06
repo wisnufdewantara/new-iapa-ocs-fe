@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../lib/axios'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface Setting {
   setting_key: string
@@ -10,6 +11,7 @@ interface Setting {
 }
 
 export function SettingsPage() {
+  usePageTitle('Pengaturan')
   const queryClient = useQueryClient()
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 

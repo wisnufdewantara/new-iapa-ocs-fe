@@ -61,9 +61,9 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
             table.setPageIndex(0)
           }}
           placeholder={searchPlaceholder ?? 'Cari...'}
-          className="w-full max-w-xs rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+          className="w-full max-w-xs rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
-        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
           <span>Tampilkan</span>
           <select
             value={pageSizeOption}
@@ -71,7 +71,7 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
               setPageSizeOption(e.target.value === 'all' ? 'all' : Number(e.target.value))
               table.setPageIndex(0)
             }}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+            className="rounded-md border border-gray-300 px-2 py-1 text-sm"
           >
             {PAGE_SIZE_OPTIONS.map((n) => (
               <option key={n} value={n}>
@@ -83,17 +83,17 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-white/10 dark:bg-brand-dark-surface">
-        <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
-          <thead className="bg-gray-50 dark:bg-white/5">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <table className="min-w-full divide-y divide-gray-200 text-sm">
+          <thead className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
-                    className={`px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400 ${
-                      header.column.getCanSort() ? 'cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-200' : ''
+                    className={`px-4 py-3 text-left font-medium text-gray-500 ${
+                      header.column.getCanSort() ? 'cursor-pointer select-none hover:text-gray-700' : ''
                     }`}
                   >
                     <span className="flex items-center gap-1">
@@ -105,10 +105,10 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+          <tbody className="divide-y divide-gray-100">
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={columns.length} className="px-4 py-6 text-center text-gray-500">
                   {emptyMessage ?? 'Tidak ada data.'}
                 </td>
               </tr>
@@ -116,7 +116,7 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
             {pageRows.map((row) => (
               <tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                  <td key={cell.id} className="px-4 py-3 text-gray-700">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -127,7 +127,7 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
       </div>
 
       {totalRows > 0 && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500">
           <span>
             Menampilkan {from}–{to} dari {totalRows}
           </span>
@@ -135,14 +135,14 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
             <button
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="rounded-md border border-gray-300 px-3 py-1 disabled:opacity-40 dark:border-white/15"
+              className="rounded-md border border-gray-300 px-3 py-1 disabled:opacity-40"
             >
               Sebelumnya
             </button>
             <button
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="rounded-md border border-gray-300 px-3 py-1 disabled:opacity-40 dark:border-white/15"
+              className="rounded-md border border-gray-300 px-3 py-1 disabled:opacity-40"
             >
               Selanjutnya
             </button>

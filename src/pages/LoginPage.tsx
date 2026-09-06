@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { useAuthStore } from '../stores/authStore'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { usePageTitle } from '../hooks/usePageTitle'
 import logo from '../assets/logo-iapa.png'
 
 export function LoginPage() {
+  usePageTitle('Login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -41,7 +43,9 @@ export function LoginPage() {
           onSubmit={handleSubmit}
           className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-brand-dark-surface sm:p-8"
         >
-          <img src={logo} alt="IAPA" className="mb-6 h-9 w-auto" />
+          <Link to="/" className="mb-6 inline-block">
+            <img src={logo} alt="IAPA" className="h-9 w-auto" />
+          </Link>
           {error && (
             <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
               {error}
@@ -69,6 +73,12 @@ export function LoginPage() {
           >
             {loading ? 'Memproses...' : 'Login'}
           </button>
+          <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            Belum punya akun?{' '}
+            <Link to="/register" className="font-semibold text-brand-navy dark:text-brand-orange">
+              Daftar
+            </Link>
+          </p>
         </form>
       </div>
     </div>

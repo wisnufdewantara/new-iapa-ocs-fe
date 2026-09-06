@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface Conference {
   conference_id: string
@@ -28,6 +29,7 @@ type Tab = 'team' | 'participant'
 // Satu halaman dengan tab, gantiin 2 halaman terpisah (Attendance
 // presenter vs participant) di ocs2 — sesuai keputusan simplifikasi.
 export function AttendancePage() {
+  usePageTitle('Presensi')
   const queryClient = useQueryClient()
   const [conferenceId, setConferenceId] = useState('')
   const [tab, setTab] = useState<Tab>('team')

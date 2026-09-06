@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { usePageTitle } from '../hooks/usePageTitle'
 import logo from '../assets/logo-iapa.png'
 
 interface Conference {
@@ -14,6 +15,7 @@ interface Conference {
 const fmt = (d: string) => new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 
 export function EventHistoryPage() {
+  usePageTitle('Riwayat Event')
   const { data, isLoading } = useQuery({
     queryKey: ['conferences', 'history'],
     queryFn: async () => (await api.get<Conference[]>('/conferences/history')).data,

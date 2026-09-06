@@ -4,6 +4,7 @@ import { api } from '../lib/axios'
 import { useAuthStore } from '../stores/authStore'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { CONFERENCE_STATUS_BADGE_CLASS, CONFERENCE_STATUS_LABEL, type ConferenceStatus } from '../config/conferenceStatus'
+import { usePageTitle } from '../hooks/usePageTitle'
 import logo from '../assets/logo-iapa.png'
 
 interface Conference {
@@ -18,6 +19,7 @@ const fmt = (d: string | null) =>
   d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : null
 
 export function HomePage() {
+  usePageTitle()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
 
@@ -43,7 +45,9 @@ export function HomePage() {
       className="flex min-h-screen flex-col bg-[#f6f3ee] transition-colors duration-300 dark:bg-brand-dark"
     >
       <header className="flex items-center justify-between border-b border-[#ddd6c8] px-6 py-6 dark:border-white/10 sm:px-16">
-        <img src={logo} alt="IAPA" className="h-10 w-auto sm:h-12" />
+        <Link to="/">
+          <img src={logo} alt="IAPA" className="h-10 w-auto sm:h-12" />
+        </Link>
         <div className="flex items-center gap-4">
           <ThemeToggle className="text-[#1c1917] dark:text-gray-200" />
           {user ? (
@@ -98,7 +102,7 @@ export function HomePage() {
           )}
           <div className="animate-fade-slide-up mt-3 flex flex-wrap gap-3" style={{ animationDelay: '200ms' }}>
             <Link
-              to="/login"
+              to="/register"
               className="rounded-sm bg-brand-orange px-7 py-3.5 text-center font-sans text-sm font-semibold text-white hover:bg-brand-orange-dark"
             >
               Daftar Sebagai Peserta

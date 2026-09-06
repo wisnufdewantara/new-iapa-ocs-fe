@@ -4,6 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { CONFERENCE_STATUS_LABEL, type ConferenceStatus } from '../config/conferenceStatus'
 import { DataTable } from '../components/DataTable'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface Conference {
   conference_id: string
@@ -17,6 +18,7 @@ const fmt = (d: string | null) =>
   d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'
 
 export function ConferencePage() {
+  usePageTitle('Daftar Conference')
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')

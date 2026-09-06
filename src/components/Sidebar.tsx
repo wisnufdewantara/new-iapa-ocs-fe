@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { menuForRole } from '../config/menu'
 import logo from '../assets/logo-iapa.png'
@@ -23,9 +23,9 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="px-4 py-5">
+      <Link to="/" className="block px-4 py-5">
         <img src={logo} alt="IAPA" className="h-8 w-auto" />
-      </div>
+      </Link>
       <nav className="px-2 pb-6">
         {groups.map((group) => (
           <div key={group.group} className="mb-4">

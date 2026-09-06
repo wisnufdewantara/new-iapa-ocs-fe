@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { usePageTitle } from '../hooks/usePageTitle'
 import logo from '../assets/logo-iapa.png'
 
 interface EventDetail {
@@ -27,6 +28,7 @@ export function EventDetailPage() {
     queryFn: async () => (await api.get<EventDetail>(`/conferences/history/${id}`)).data,
     enabled: !!id,
   })
+  usePageTitle(data?.conference_name ?? 'Riwayat Event')
 
   const bestPresenterName = data?.papers_conference_best_paperTopapers?.paper_writers[0]
   const bestPresenterOnlyName = data?.paper_writers

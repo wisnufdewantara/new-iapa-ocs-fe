@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface Conference {
   conference_id: string
@@ -31,6 +32,7 @@ interface Paper {
 }
 
 export function AssignReviewerPage() {
+  usePageTitle('Assign Reviewer')
   const queryClient = useQueryClient()
   const [conferenceId, setConferenceId] = useState('')
   const [assigningPaper, setAssigningPaper] = useState<Paper | null>(null)
