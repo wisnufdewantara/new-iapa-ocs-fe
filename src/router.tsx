@@ -14,6 +14,7 @@ import { AttendancePage } from './pages/AttendancePage'
 import { ReviewPaperPage } from './pages/ReviewPaperPage'
 import { AssignReviewerPage } from './pages/AssignReviewerPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { UserManagementPage } from './pages/UserManagementPage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { MENU } from './config/menu'
@@ -29,6 +30,7 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/papers/review': <ReviewPaperPage />,
   '/papers/assign-reviewer': <AssignReviewerPage />,
   '/admin/settings': <SettingsPage />,
+  '/admin/roles': <UserManagementPage />,
 }
 
 const allPaths = [...new Set(MENU.flatMap((g) => g.items.map((i) => i.path)))]

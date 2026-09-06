@@ -24,7 +24,7 @@ export function LoginPage() {
       setAuth(data.accessToken, data.user)
       navigate('/dashboard')
     } catch {
-      setError('Username atau password salah')
+      setError('Username/email atau password salah')
     } finally {
       setLoading(false)
     }
@@ -51,7 +51,7 @@ export function LoginPage() {
               {error}
             </p>
           )}
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Username / Email</label>
           <input
             className="mb-4 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
             value={username}
