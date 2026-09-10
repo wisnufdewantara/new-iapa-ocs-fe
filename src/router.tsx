@@ -16,6 +16,13 @@ import { ReviewPaperPage } from './pages/ReviewPaperPage'
 import { AssignReviewerPage } from './pages/AssignReviewerPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { UserManagementPage } from './pages/UserManagementPage'
+import { RolePermissionsPage } from './pages/admin/RolePermissionsPage'
+import { DeveloperDashboardPage } from './pages/admin/DeveloperDashboardPage'
+import { GenerateLoaPage } from './pages/GenerateLoaPage'
+import { CertificateManagementPage } from './pages/CertificateManagementPage'
+import { PaymentPage } from './pages/PaymentPage'
+import { PaymentManagementPage } from './pages/PaymentManagementPage'
+import { JoinConferencePage } from './pages/JoinConferencePage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { MENU } from './config/menu'
@@ -31,8 +38,15 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/papers/submit': <SubmitPaperPage />,
   '/papers/review': <ReviewPaperPage />,
   '/papers/assign-reviewer': <AssignReviewerPage />,
+  '/papers/loa': <GenerateLoaPage />,
+  '/join': <JoinConferencePage />,
+  '/certificates': <CertificateManagementPage />,
+  '/payment': <PaymentPage />,
+  '/payment/manage': <PaymentManagementPage />,
   '/admin/settings': <SettingsPage />,
   '/admin/roles': <UserManagementPage />,
+  '/admin/permissions': <RolePermissionsPage />,
+  '/admin/developer': <DeveloperDashboardPage />,
 }
 
 const allPaths = [...new Set(MENU.flatMap((g) => g.items.map((i) => i.path)))]

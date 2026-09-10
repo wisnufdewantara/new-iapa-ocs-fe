@@ -27,6 +27,8 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [pageSizeOption, setPageSizeOption] = useState<number | 'all'>(50)
+  const [pageIndex, setPageIndex] = useState(0)
+  const pageSize = pageSizeOption === 'all' ? Math.max(data.length, 1) : pageSizeOption
 
   const table = useReactTable({
     data,
@@ -34,10 +36,21 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
     state: {
       sorting,
       globalFilter,
-      pagination: { pageIndex: 0, pageSize: pageSizeOption === 'all' ? Math.max(data.length, 1) : pageSizeOption },
+      pagination: { pageIndex, pageSize },
     },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    // pageIndex WAJIB di-state-kan sendiri (bukan di-hardcode 0) dan
+    // di-sync balik lewat onPaginationChange — sebelumnya pageIndex
+    // dihardcode 0 di state di atas, jadi klik "Selanjutnya" keitung
+    // pindah halaman di internal TanStack tapi balik ke-reset ke 0
+    // tiap render karena controlled state-nya nggak pernah ikut
+    // berubah. Itu penyebab tombol "Selanjutnya" kelihatan nggak
+    // ngefek.
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater
+      setPageIndex(next.pageIndex)
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -46,8 +59,6 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
 
   const totalRows = table.getFilteredRowModel().rows.length
   const pageRows = table.getRowModel().rows
-  const pageIndex = table.getState().pagination.pageIndex
-  const pageSize = table.getState().pagination.pageSize
   const from = totalRows === 0 ? 0 : pageIndex * pageSize + 1
   const to = Math.min((pageIndex + 1) * pageSize, totalRows)
 
@@ -58,7 +69,7 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
           value={globalFilter}
           onChange={(e) => {
             setGlobalFilter(e.target.value)
-            table.setPageIndex(0)
+            setPageIndex(0)
           }}
           placeholder={searchPlaceholder ?? 'Cari...'}
           className="w-full max-w-xs rounded-md border border-gray-300 px-3 py-2 text-sm"
@@ -69,7 +80,7 @@ export function DataTable<T>({ columns, data, searchPlaceholder, emptyMessage }:
             value={pageSizeOption}
             onChange={(e) => {
               setPageSizeOption(e.target.value === 'all' ? 'all' : Number(e.target.value))
-              table.setPageIndex(0)
+              setPageIndex(0)
             }}
             className="rounded-md border border-gray-300 px-2 py-1 text-sm"
           >

@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
-import { menuForRole } from '../config/menu'
+import { MENU } from '../config/menu'
+import { useMenu } from '../hooks/useMenu'
 import logo from '../assets/logo-iapa.png'
 
 interface SidebarProps {
@@ -12,10 +13,19 @@ interface SidebarProps {
 // hardcoded (VSidebar.vue) di ocs2. Di layar kecil jadi drawer
 // yang bisa ditutup/dibuka (dikontrol dari Layout), di layar
 // md ke atas selalu tampil sebagai kolom statis.
+//
+// Visibilitas menu sekarang dari role_menu_items di database (lewat
+// useMenu), bukan lagi filter statis roles: Role[] di menu.ts — itemnya
+// (label/path/grup) tetap dari MENU, cuma yang nge-filter beda.
 export function Sidebar({ open, onNavigate }: SidebarProps) {
   const role = useAuthStore((s) => s.user?.role)
+  const { data: allowedPaths } = useMenu()
   if (!role) return null
-  const groups = menuForRole(role)
+  const allowed = new Set(allowedPaths ?? [])
+  const groups = MENU.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => allowed.has(item.path)),
+  })).filter((group) => group.items.length > 0)
 
   return (
     <aside

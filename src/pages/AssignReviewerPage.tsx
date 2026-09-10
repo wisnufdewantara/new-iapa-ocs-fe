@@ -4,6 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { toastSuccess, toastError } from '../lib/toast'
 
 interface Conference {
   conference_id: string
@@ -38,7 +39,6 @@ export function AssignReviewerPage() {
   const [assigningPaper, setAssigningPaper] = useState<Paper | null>(null)
   const [reviewerId, setReviewerId] = useState('')
   const [deadline, setDeadline] = useState('')
-  const [error, setError] = useState('')
 
   const { data: conferences } = useQuery({
     queryKey: ['conferences'],
@@ -61,12 +61,12 @@ export function AssignReviewerPage() {
       api.post('/assign-reviewer', { paperId: assigningPaper?.paperId, reviewerId, deadline }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assign-reviewer', conferenceId] })
+      toastSuccess('Reviewer berhasil ditugaskan.')
       setAssigningPaper(null)
       setReviewerId('')
       setDeadline('')
-      setError('')
     },
-    onError: () => setError('Gagal assign — mungkin reviewer ini sudah ditugaskan ke paper ini.'),
+    onError: (err) => toastError(err, 'Gagal assign — mungkin reviewer ini sudah ditugaskan ke paper ini.'),
   })
 
   const columns = useMemo<ColumnDef<Paper, any>[]>(
@@ -141,11 +141,6 @@ export function AssignReviewerPage() {
           <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
             Assign reviewer untuk: <span className="font-semibold">{assigningPaper.paperTitle}</span>
           </p>
-          {error && (
-            <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
-              {error}
-            </p>
-          )}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Reviewer</label>

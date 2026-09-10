@@ -4,27 +4,27 @@ import { api } from '../lib/axios'
 import { useAuthStore } from '../stores/authStore'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { toastSuccess, toastError } from '../lib/toast'
 import logo from '../assets/logo-iapa.png'
 
 export function LoginPage() {
   usePageTitle('Login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const setAuth = useAuthStore((s) => s.setAuth)
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
       const { data } = await api.post('/auth/login', { username, password })
       setAuth(data.accessToken, data.user)
+      toastSuccess(`Login berhasil. Selamat datang, ${data.user.firstName}.`)
       navigate('/dashboard')
-    } catch {
-      setError('Username/email atau password salah')
+    } catch (err) {
+      toastError(err, 'Username/email atau password salah')
     } finally {
       setLoading(false)
     }
@@ -46,11 +46,6 @@ export function LoginPage() {
           <Link to="/" className="mb-6 inline-block">
             <img src={logo} alt="IAPA" className="h-9 w-auto" />
           </Link>
-          {error && (
-            <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
-              {error}
-            </p>
-          )}
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Username / Email</label>
           <input
             className="mb-4 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"

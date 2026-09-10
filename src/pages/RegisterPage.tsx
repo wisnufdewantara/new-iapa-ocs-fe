@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { toastSuccess, toastError } from '../lib/toast'
 import logo from '../assets/logo-iapa.png'
 
 interface FormData {
@@ -85,9 +86,10 @@ export function RegisterPage() {
     setLoading(true)
     try {
       await api.post('/auth/register', form)
+      toastSuccess('Registrasi berhasil. Silakan login.')
       navigate('/login')
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Gagal mendaftar. Coba lagi.')
+    } catch (err) {
+      toastError(err, 'Gagal mendaftar. Coba lagi.')
     } finally {
       setLoading(false)
     }

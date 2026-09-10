@@ -1,11 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { toastSuccess, toastError } from '../lib/toast'
 
-const ROLES = ['Admin', 'Peserta', 'Reviewer', 'Admin_Keuangan', 'Manager', 'Moderator'] as const
+interface RoleRow {
+  id: string
+  name: string
+}
 
 interface UserRow {
   userId: string
@@ -21,11 +25,15 @@ interface UserRow {
 export function UserManagementPage() {
   usePageTitle('Kelola Role')
   const queryClient = useQueryClient()
-  const [error, setError] = useState('')
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: async () => (await api.get<UserRow[]>('/users')).data,
+  })
+
+  const { data: roles } = useQuery({
+    queryKey: ['roles'],
+    queryFn: async () => (await api.get<RoleRow[]>('/roles')).data,
   })
 
   const updateRoleMutation = useMutation({
@@ -33,9 +41,9 @@ export function UserManagementPage() {
       api.patch(`/users/${userId}/role`, { role }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
-      setError('')
+      toastSuccess('Role user berhasil diubah.')
     },
-    onError: () => setError('Gagal mengubah role user.'),
+    onError: (err) => toastError(err, 'Gagal mengubah role user.'),
   })
 
   const columns = useMemo<ColumnDef<UserRow, any>[]>(
@@ -61,26 +69,21 @@ export function UserManagementPage() {
               updateRoleMutation.mutate({ userId: row.original.userId, role: e.target.value })
             }
           >
-            {ROLES.map((r) => (
-              <option key={r} value={r}>
-                {r}
+            {roles?.map((r) => (
+              <option key={r.id} value={r.name}>
+                {r.name}
               </option>
             ))}
           </select>
         ),
       },
     ],
-    [updateRoleMutation],
+    [updateRoleMutation, roles],
   )
 
   return (
     <div>
       <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Kelola Role</h1>
-      {error && (
-        <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
-          {error}
-        </p>
-      )}
       {isLoading ? (
         <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
       ) : (

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { useAdminGateStore } from '../stores/adminGateStore'
 import { api } from '../lib/axios'
+import { toastError } from '../lib/toast'
 
 // Password kedua khusus buat area /admin, HANYA berlaku buat role Admin
 // (superuser). Role lain (Manager, Admin_Keuangan, dst) yang kebetulan
@@ -13,7 +14,6 @@ export function AdminGate() {
   const verified = useAdminGateStore((s) => s.verified)
   const setVerified = useAdminGateStore((s) => s.setVerified)
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   if (role !== 'Admin' || verified) {
@@ -22,13 +22,12 @@ export function AdminGate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
       await api.post('/auth/verify-admin-gate', { password })
       setVerified(true)
-    } catch {
-      setError('Password salah.')
+    } catch (err) {
+      toastError(err, 'Password salah.')
     } finally {
       setLoading(false)
     }
@@ -44,11 +43,6 @@ export function AdminGate() {
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
           Masukkan password khusus superuser untuk melanjutkan.
         </p>
-        {error && (
-          <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
-            {error}
-          </p>
-        )}
         <input
           type="password"
           autoFocus

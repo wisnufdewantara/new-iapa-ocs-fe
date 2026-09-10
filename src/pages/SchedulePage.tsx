@@ -4,6 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { toastSuccess, toastError } from '../lib/toast'
 
 interface Conference {
   conference_id: string
@@ -66,6 +67,7 @@ export function SchedulePage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules', conferenceId] })
+      toastSuccess('Jadwal berhasil ditambahkan.')
       setShowForm(false)
       setPaperId('')
       setDate('')
@@ -73,6 +75,7 @@ export function SchedulePage() {
       setSessionName('')
       setRoom('')
     },
+    onError: (err) => toastError(err, 'Gagal menambahkan jadwal.'),
   })
 
   const columns = useMemo<ColumnDef<ScheduleItem, any>[]>(

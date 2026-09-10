@@ -4,6 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { toastError } from '../lib/toast'
 
 interface Conference {
   conference_id: string
@@ -55,6 +56,7 @@ export function AttendancePage() {
     mutationFn: (row: TeamRow) =>
       api.patch(`/attendance/team/${conferenceId}`, { writerId: row.writerId, present: !row.present }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['attendance-team', conferenceId] }),
+    onError: (err) => toastError(err, 'Gagal mengubah status presensi.'),
   })
 
   const toggleParticipant = useMutation({
@@ -64,6 +66,7 @@ export function AttendancePage() {
         present: !row.present,
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['attendance-participant', conferenceId] }),
+    onError: (err) => toastError(err, 'Gagal mengubah status presensi.'),
   })
 
   const teamColumns = useMemo<ColumnDef<TeamRow, any>[]>(

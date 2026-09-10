@@ -4,6 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { toastSuccess, toastError } from '../lib/toast'
 
 interface Conference {
   conference_id: string
@@ -47,7 +48,11 @@ export function ReviewPaperPage() {
   const statusMutation = useMutation({
     mutationFn: ({ paperId, status }: { paperId: string; status: Paper['conferenceStatus'] }) =>
       api.patch(`/papers/${paperId}/status`, { conferenceStatus: status }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] }),
+    onSuccess: (_data, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] })
+      toastSuccess(`Paper berhasil di-${status === 'Accepted' ? 'accept' : 'reject'}.`)
+    },
+    onError: (err) => toastError(err, 'Gagal mengubah status paper.'),
   })
 
   const filteredPapers = papers?.filter((p) => statusFilter === 'all' || p.conferenceStatus === statusFilter) ?? []

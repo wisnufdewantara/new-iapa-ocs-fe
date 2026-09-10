@@ -1,9 +1,6 @@
-import type { Role } from '../types/role'
-
 export interface MenuItem {
   label: string
   path: string
-  roles: Role[]
 }
 
 export interface MenuGroup {
@@ -14,60 +11,58 @@ export interface MenuGroup {
 // Satu sumber kebenaran buat sidebar & routing, gantiin 6 blok sidebar
 // hardcoded per-role di ocs2. Menu yang mirip antar role (mis. Payment
 // presenter vs participant) disatukan jadi satu halaman dengan tab,
-// bukan halaman terpisah — lihat PaymentPage.
+// bukan halaman terpisah — lihat PaymentPage. Visibilitas per role
+// diatur dari database (role_menu_items, lihat /admin/permissions),
+// bukan hardcode di sini lagi — file ini cuma katalog label+path.
 export const MENU: MenuGroup[] = [
   {
     group: 'Utama',
-    items: [
-      { label: 'Dashboard', path: '/dashboard', roles: ['Admin', 'Peserta', 'Manager', 'Admin_Keuangan'] },
-    ],
+    items: [{ label: 'Dashboard', path: '/dashboard' }],
   },
   {
     group: 'Conference',
     items: [
-      { label: 'Daftar Conference', path: '/conferences', roles: ['Admin', 'Manager'] },
-      { label: 'Jadwal', path: '/schedules', roles: ['Admin', 'Manager'] },
+      { label: 'Daftar Conference', path: '/conferences' },
+      { label: 'Jadwal', path: '/schedules' },
     ],
   },
   {
     group: 'Paper',
     items: [
-      { label: 'Submit Paper', path: '/papers/submit', roles: ['Peserta'] },
-      { label: 'Review Paper', path: '/papers/review', roles: ['Admin', 'Reviewer', 'Manager'] },
-      { label: 'Assign Reviewer', path: '/papers/assign-reviewer', roles: ['Admin', 'Manager'] },
-      { label: 'Generate LoA', path: '/papers/loa', roles: ['Admin', 'Manager'] },
+      { label: 'Submit Paper', path: '/papers/submit' },
+      { label: 'Review Paper', path: '/papers/review' },
+      { label: 'Assign Reviewer', path: '/papers/assign-reviewer' },
+      { label: 'Generate LoA', path: '/papers/loa' },
     ],
   },
   {
     group: 'Peserta & Presensi',
     items: [
-      { label: 'Join Conference', path: '/join', roles: ['Peserta'] },
-      { label: 'Presensi', path: '/attendance', roles: ['Admin', 'Moderator'] },
+      { label: 'Join Conference', path: '/join' },
+      { label: 'Presensi', path: '/attendance' },
     ],
   },
   {
     group: 'Sertifikat',
-    items: [{ label: 'Kelola Sertifikat', path: '/certificates', roles: ['Admin', 'Manager'] }],
+    items: [{ label: 'Kelola Sertifikat', path: '/certificates' }],
   },
   {
     group: 'Pembayaran',
     items: [
-      { label: 'Pembayaran Saya', path: '/payment', roles: ['Peserta'] },
-      { label: 'Kelola Pembayaran', path: '/payment/manage', roles: ['Admin', 'Admin_Keuangan'] },
+      { label: 'Pembayaran Saya', path: '/payment' },
+      { label: 'Kelola Pembayaran', path: '/payment/manage' },
     ],
   },
   {
     group: 'Admin',
     items: [
-      { label: 'Kelola Role', path: '/admin/roles', roles: ['Admin'] },
-      { label: 'Pengaturan', path: '/admin/settings', roles: ['Admin', 'Admin_Keuangan'] },
+      { label: 'Kelola Role', path: '/admin/roles' },
+      { label: 'Role & Permission', path: '/admin/permissions' },
+      { label: 'Pengaturan', path: '/admin/settings' },
     ],
   },
+  {
+    group: 'Developer',
+    items: [{ label: 'Dashboard Developer', path: '/admin/developer' }],
+  },
 ]
-
-export function menuForRole(role: Role): MenuGroup[] {
-  return MENU.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => item.roles.includes(role)),
-  })).filter((group) => group.items.length > 0)
-}

@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useActiveConferences } from '../hooks/useActiveConferences'
+import { toastSuccess, toastError } from '../lib/toast'
 
 interface ConferenceSubTheme {
   sub_theme: string | null
@@ -80,12 +82,22 @@ export function SubmitPaperPage() {
   const [subTheme, setSubTheme] = useState('')
   const [authors, setAuthors] = useState<AuthorForm[]>([{ ...emptyAuthor }])
   const [file, setFile] = useState<File | null>(null)
-  const [error, setError] = useState('')
+  const [conferenceId, setConferenceId] = useState('')
 
-  const { data: conference } = useQuery({
-    queryKey: ['conferences', 'active'],
-    queryFn: async () => (await api.get<ActiveConference | null>('/conferences/active')).data,
-  })
+  // /active bisa balikin lebih dari 1 conference sekaligus (belum
+  // "ended" bareng) — defaultnya pilih prioritas tertinggi (ongoing
+  // duluan, urutan dari backend), tapi kalau ada lebih dari satu user
+  // bisa ganti sendiri lewat picker di bawah, bukan otomatis kekunci ke
+  // yang pertama.
+  const { data: activeConferences } = useActiveConferences<ActiveConference>()
+
+  useEffect(() => {
+    if (activeConferences && activeConferences.length > 0 && !conferenceId) {
+      setConferenceId(activeConferences[0].conference_id)
+    }
+  }, [activeConferences, conferenceId])
+
+  const conference = activeConferences?.find((c) => c.conference_id === conferenceId)
 
   const { data: myPaper, isLoading: loadingMine } = useQuery({
     queryKey: ['papers', 'mine'],
@@ -125,14 +137,15 @@ export function SubmitPaperPage() {
       formData.append('keywords', keywords)
       formData.append('subTheme', subTheme)
       formData.append('authors', JSON.stringify(authors))
+      formData.append('conferenceId', conferenceId)
       if (file) formData.append('document', file)
       return api.post('/papers', formData)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['papers', 'mine'] })
-      setError('')
+      toastSuccess('Paper berhasil disubmit!')
     },
-    onError: (err: any) => setError(err.response?.data?.message ?? 'Gagal submit paper.'),
+    onError: (err) => toastError(err, 'Gagal submit paper.'),
   })
 
   const updateAuthor = (index: number, patch: Partial<AuthorForm>) => {
@@ -187,23 +200,34 @@ export function SubmitPaperPage() {
   return (
     <div>
       <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Submit Paper</h1>
-      <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Untuk: {conference.conference_name}</p>
 
-      {error && (
-        <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
-          {error}
-        </p>
-      )}
-      {submitMutation.isSuccess && (
-        <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700 dark:bg-green-500/10 dark:text-green-400">
-          Paper berhasil disubmit!
-        </p>
+      {activeConferences && activeConferences.length > 1 ? (
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Pilih Conference
+          </label>
+          <select
+            value={conferenceId}
+            onChange={(e) => {
+              setConferenceId(e.target.value)
+              setSubTheme('')
+            }}
+            className="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+          >
+            {activeConferences.map((c) => (
+              <option key={c.conference_id} value={c.conference_id}>
+                {c.conference_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Untuk: {conference.conference_name}</p>
       )}
 
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          setError('')
           submitMutation.mutate()
         }}
         className="space-y-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface"
