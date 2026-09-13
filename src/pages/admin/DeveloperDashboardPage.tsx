@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/axios'
 import { usePageTitle } from '../../hooks/usePageTitle'
+import { toastSuccess, toastError } from '../../lib/toast'
 
 interface DeveloperStatus {
   appVersion: string
@@ -40,11 +41,26 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 // status) — TIDAK ADA data mentah/PII user atau secret apa pun.
 export function DeveloperDashboardPage() {
   usePageTitle('Dashboard Developer')
+  const queryClient = useQueryClient()
 
   const { data, isLoading } = useQuery({
     queryKey: ['developer-status'],
     queryFn: async () => (await api.get<DeveloperStatus>('/developer/status')).data,
     refetchInterval: 15000,
+  })
+
+  const { data: functionalTestConfig } = useQuery({
+    queryKey: ['functional-test-config'],
+    queryFn: async () => (await api.get<{ enabled: boolean }>('/developer/functional-test-config')).data,
+  })
+
+  const toggleFunctionalTest = useMutation({
+    mutationFn: (enabled: boolean) => api.put('/developer/functional-test-config', { enabled }),
+    onSuccess: (_res, enabled) => {
+      queryClient.invalidateQueries({ queryKey: ['functional-test-config'] })
+      toastSuccess(enabled ? 'Halaman Functional Test diaktifkan.' : 'Halaman Functional Test dinonaktifkan.')
+    },
+    onError: (err) => toastError(err, 'Gagal mengubah status Functional Test.'),
   })
 
   return (
@@ -108,6 +124,30 @@ export function DeveloperDashboardPage() {
               <li>Participants: {data.counts.participants}</li>
               <li>Payments: {data.counts.payments}</li>
             </ul>
+          </Card>
+
+          <Card title="Functional Test (Peserta)">
+            <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
+              Halaman publik <code className="text-xs">/functional-test</code> buat tim UAT — nggak butuh login.
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => toggleFunctionalTest.mutate(!functionalTestConfig?.enabled)}
+                disabled={toggleFunctionalTest.isPending}
+                className={`rounded-md px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${
+                  functionalTestConfig?.enabled
+                    ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/15 dark:text-red-400'
+                    : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-500/15 dark:text-green-400'
+                }`}
+              >
+                {functionalTestConfig?.enabled ? 'Nonaktifkan' : 'Aktifkan'}
+              </button>
+              {functionalTestConfig?.enabled && (
+                <a href="/functional-test" target="_blank" rel="noreferrer" className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange">
+                  Buka halaman →
+                </a>
+              )}
+            </div>
           </Card>
         </div>
       )}

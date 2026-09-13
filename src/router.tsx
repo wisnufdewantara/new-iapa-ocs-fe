@@ -23,6 +23,8 @@ import { CertificateManagementPage } from './pages/CertificateManagementPage'
 import { PaymentPage } from './pages/PaymentPage'
 import { PaymentManagementPage } from './pages/PaymentManagementPage'
 import { JoinConferencePage } from './pages/JoinConferencePage'
+import { GuidePage } from './pages/GuidePage'
+import { FunctionalTestPage } from './pages/FunctionalTestPage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { MENU } from './config/menu'
@@ -47,6 +49,7 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/admin/roles': <UserManagementPage />,
   '/admin/permissions': <RolePermissionsPage />,
   '/admin/developer': <DeveloperDashboardPage />,
+  '/guide': <GuidePage />,
 }
 
 const allPaths = [...new Set(MENU.flatMap((g) => g.items.map((i) => i.path)))]
@@ -67,6 +70,7 @@ export const router = createBrowserRouter([
   { path: '/event-history/:id', element: <EventDetailPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
+  { path: '/functional-test', element: <FunctionalTestPage /> },
   {
     element: <ProtectedRoute />,
     children: [

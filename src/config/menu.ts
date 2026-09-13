@@ -17,7 +17,10 @@ export interface MenuGroup {
 export const MENU: MenuGroup[] = [
   {
     group: 'Utama',
-    items: [{ label: 'Dashboard', path: '/dashboard' }],
+    items: [
+      { label: 'Dashboard', path: '/dashboard' },
+      { label: 'Panduan Penggunaan', path: '/guide' },
+    ],
   },
   {
     group: 'Conference',
