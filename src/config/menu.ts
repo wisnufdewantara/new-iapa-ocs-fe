@@ -19,6 +19,7 @@ export const MENU: MenuGroup[] = [
     group: 'Utama',
     items: [
       { label: 'Dashboard', path: '/dashboard' },
+      { label: 'Profil Saya', path: '/profile' },
       { label: 'Panduan Penggunaan', path: '/guide' },
     ],
   },

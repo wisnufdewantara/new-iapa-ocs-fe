@@ -18,6 +18,8 @@ import { SettingsPage } from './pages/SettingsPage'
 import { UserManagementPage } from './pages/UserManagementPage'
 import { RolePermissionsPage } from './pages/admin/RolePermissionsPage'
 import { DeveloperDashboardPage } from './pages/admin/DeveloperDashboardPage'
+import { UserDetailPage } from './pages/admin/UserDetailPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { GenerateLoaPage } from './pages/GenerateLoaPage'
 import { CertificateManagementPage } from './pages/CertificateManagementPage'
 import { PaymentPage } from './pages/PaymentPage'
@@ -50,6 +52,7 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/admin/permissions': <RolePermissionsPage />,
   '/admin/developer': <DeveloperDashboardPage />,
   '/guide': <GuidePage />,
+  '/profile': <ProfilePage />,
 }
 
 const allPaths = [...new Set(MENU.flatMap((g) => g.items.map((i) => i.path)))]
@@ -59,6 +62,10 @@ const allPaths = [...new Set(MENU.flatMap((g) => g.items.map((i) => i.path)))]
 const adminRoutes = allPaths
   .filter((path) => path.startsWith('/admin'))
   .map((path) => ({ path, element: builtRoutes[path] ?? <ComingSoonPage /> }))
+  // /admin/users/:id bukan item menu (diakses lewat link "Detail" di
+  // Kelola Role, bukan sidebar), jadi ditambah manual di sini — bukan
+  // hasil derive dari MENU kayak path lain.
+  .concat([{ path: '/admin/users/:id', element: <UserDetailPage /> }])
 
 const domainRoutes = allPaths
   .filter((path) => !path.startsWith('/admin'))
