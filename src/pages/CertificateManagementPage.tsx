@@ -38,6 +38,33 @@ interface CertificateListResponse {
 
 type Tab = 'presenter' | 'participant' | 'awards'
 
+function BulkSendButton({
+  rows,
+  type,
+  pending,
+  onSend,
+}: {
+  rows: CertRow[]
+  type: 'Presenter' | 'Participant'
+  pending: boolean
+  onSend: (items: { attendanceId: string; type: string }[]) => void
+}) {
+  const unsent = rows.filter((r) => !r.sentCertificate)
+  if (rows.length === 0) return null
+  return (
+    <div className="mb-3 flex items-center gap-3">
+      <button
+        onClick={() => onSend(unsent.map((r) => ({ attendanceId: r.attendanceId, type })))}
+        disabled={pending || unsent.length === 0}
+        className="rounded-md border border-brand-navy px-3 py-1.5 text-sm font-medium text-brand-navy hover:bg-brand-navy hover:text-white disabled:opacity-40 dark:border-brand-orange dark:text-brand-orange dark:hover:bg-brand-orange dark:hover:text-brand-dark"
+      >
+        Kirim ke {unsent.length} yang Belum Terkirim
+      </button>
+      {pending && <span className="text-xs text-gray-500 dark:text-gray-400">Memproses di background...</span>}
+    </div>
+  )
+}
+
 export function CertificateManagementPage() {
   usePageTitle('Kelola Sertifikat')
   const queryClient = useQueryClient()
@@ -49,10 +76,17 @@ export function CertificateManagementPage() {
     queryFn: async () => (await api.get<Conference[]>('/conferences')).data,
   })
 
+  const [polling, setPolling] = useState(false)
+
   const { data, isLoading } = useQuery({
     queryKey: ['certificates', conferenceId],
     queryFn: async () => (await api.get<CertificateListResponse>('/certificates', { params: { conferenceId } })).data,
     enabled: !!conferenceId,
+    // Polling sementara abis trigger kirim massal — backend sekarang
+    // proses di background (nggak nunggu di request), jadi FE butuh
+    // refresh berkala buat lihat status sentCertificate per baris
+    // ke-update satu-satu, bukan nunggu satu response besar.
+    refetchInterval: polling ? 4000 : false,
   })
 
   const send = useMutation({
@@ -63,6 +97,18 @@ export function CertificateManagementPage() {
       toastSuccess('Sertifikat berhasil dikirim.')
     },
     onError: (err) => toastError(err, 'Gagal mengirim sertifikat.'),
+  })
+
+  const sendBulk = useMutation({
+    mutationFn: (items: { attendanceId: string; type: string }[]) => api.post('/certificates/send-bulk', { items }),
+    onSuccess: (_res, items) => {
+      toastSuccess(`${items.length} sertifikat sedang diproses di background.`)
+      setPolling(true)
+      // Berhenti polling otomatis setelah 1 menit — cukup buat batch
+      // wajar, admin masih bisa refresh manual kalau ternyata lebih lama.
+      setTimeout(() => setPolling(false), 60_000)
+    },
+    onError: (err) => toastError(err, 'Gagal memulai kirim massal.'),
   })
 
   const sendAward = useMutation({
@@ -193,10 +239,26 @@ export function CertificateManagementPage() {
           ) : (
             <>
               {tab === 'presenter' && (
-                <DataTable columns={presenterColumns} data={data?.presenters ?? []} searchPlaceholder="Cari nama..." />
+                <>
+                  <BulkSendButton
+                    rows={data?.presenters ?? []}
+                    type="Presenter"
+                    pending={sendBulk.isPending}
+                    onSend={(items) => sendBulk.mutate(items)}
+                  />
+                  <DataTable columns={presenterColumns} data={data?.presenters ?? []} searchPlaceholder="Cari nama..." />
+                </>
               )}
               {tab === 'participant' && (
-                <DataTable columns={participantColumns} data={data?.participants ?? []} searchPlaceholder="Cari nama..." />
+                <>
+                  <BulkSendButton
+                    rows={data?.participants ?? []}
+                    type="Participant"
+                    pending={sendBulk.isPending}
+                    onSend={(items) => sendBulk.mutate(items)}
+                  />
+                  <DataTable columns={participantColumns} data={data?.participants ?? []} searchPlaceholder="Cari nama..." />
+                </>
               )}
               {tab === 'awards' && data && (
                 <div className="flex flex-col gap-4">
