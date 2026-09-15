@@ -20,6 +20,7 @@ interface Paper {
   subTheme: string | null
   presenterName: string | null
   presenterEmail: string | null
+  authorNames: string[]
 }
 
 const STATUS_BADGE: Record<Paper['conferenceStatus'], string> = {
@@ -76,7 +77,12 @@ export function ReviewPaperPage() {
             <span className="font-medium">{row.original.paperTitle}</span>
           ),
       },
-      { accessorKey: 'presenterName', header: 'Presenter', cell: (c) => c.getValue() ?? '-' },
+      {
+        id: 'presenterName',
+        header: 'Author(s)',
+        accessorFn: (p) => (p.authorNames.length > 0 ? p.authorNames.join(', ') : p.presenterName),
+        cell: (c) => c.getValue() ?? '-',
+      },
       { accessorKey: 'subTheme', header: 'Sub Tema', cell: (c) => c.getValue() ?? '-' },
       {
         accessorKey: 'conferenceStatus',
