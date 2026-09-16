@@ -104,6 +104,22 @@ export function ConferencePage() {
     setDeadlineDraft(deadlineSetting?.setting_value ?? '')
   }, [deadlineSetting?.setting_value, settingsConferenceId])
 
+  // Toggle buat nutup Submit Paper per-conference — independen dari
+  // status conference (yang ngatur banyak hal lain juga). Default
+  // kebuka (belum pernah diatur = boleh submit), niru perilaku lama.
+  const submissionOpenSetting = conferenceSettings?.find((s) => s.setting_key === 'papers_submission_open')
+  const submissionOpen = submissionOpenSetting?.setting_value !== 'false'
+
+  const toggleSubmissionMutation = useMutation({
+    mutationFn: (open: boolean) =>
+      api.put(`/conferences/${settingsConferenceId}/settings/papers_submission_open`, { value: String(open) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conference-settings', settingsConferenceId] })
+      toastSuccess('Status submission paper berhasil diubah.')
+    },
+    onError: (err) => toastError(err, 'Gagal mengubah status submission paper.'),
+  })
+
   const { data: posters } = useQuery({
     queryKey: ['conference-posters', settingsConferenceId],
     queryFn: async () => (await api.get<ConferencePoster[]>(`/conferences/${settingsConferenceId}/posters`)).data,
@@ -313,6 +329,21 @@ export function ConferencePage() {
               className="rounded-md bg-brand-navy px-3 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
             >
               Simpan
+            </button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <label className="w-40 text-sm font-medium text-gray-700 dark:text-gray-300">Submit Paper</label>
+            <button
+              onClick={() => toggleSubmissionMutation.mutate(!submissionOpen)}
+              disabled={toggleSubmissionMutation.isPending}
+              className={`rounded-md px-3 py-2 text-sm font-semibold disabled:opacity-40 ${
+                submissionOpen
+                  ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-500/10 dark:text-green-400'
+                  : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:text-red-400'
+              }`}
+            >
+              {submissionOpen ? 'Terbuka — klik buat tutup' : 'Ditutup — klik buat buka lagi'}
             </button>
           </div>
 

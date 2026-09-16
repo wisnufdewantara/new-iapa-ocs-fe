@@ -10,10 +10,16 @@ interface ConferenceSubTheme {
   sub_theme: string | null
 }
 
+interface ConferenceSetting {
+  setting_key: string
+  setting_value: string | null
+}
+
 interface ActiveConference {
   conference_id: string
   conference_name: string
   conference_sub_theme: ConferenceSubTheme[]
+  conference_settings: ConferenceSetting[]
 }
 
 interface MyPaper {
@@ -98,6 +104,8 @@ export function SubmitPaperPage() {
   }, [activeConferences, conferenceId])
 
   const conference = activeConferences?.find((c) => c.conference_id === conferenceId)
+  const submissionClosed =
+    conference?.conference_settings.find((s) => s.setting_key === 'papers_submission_open')?.setting_value === 'false'
 
   const { data: myPaper, isLoading: loadingMine } = useQuery({
     queryKey: ['papers', 'mine'],
@@ -193,6 +201,19 @@ export function SubmitPaperPage() {
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Belum ada conference yang sedang aktif untuk submit paper saat ini.
         </p>
+      </div>
+    )
+  }
+
+  if (submissionClosed) {
+    return (
+      <div>
+        <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Submit Paper</h1>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Submission paper untuk <strong>{conference.conference_name}</strong> sudah ditutup.
+          </p>
+        </div>
       </div>
     )
   }
