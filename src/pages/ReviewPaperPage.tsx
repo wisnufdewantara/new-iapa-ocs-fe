@@ -51,12 +51,23 @@ export function ReviewPaperPage() {
       api.patch(`/papers/${paperId}/status`, { conferenceStatus: status }),
     onSuccess: (_data, { status }) => {
       queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] })
-      toastSuccess(`Paper berhasil di-${status === 'Accepted' ? 'accept' : 'reject'}.`)
+      const label = status === 'Accepted' ? 'accept' : status === 'Rejected' ? 'reject' : 'batalkan'
+      toastSuccess(status === 'Waiting' ? 'Keputusan berhasil dibatalkan.' : `Paper berhasil di-${label}.`)
     },
     onError: (err) => toastError(err, 'Gagal mengubah status paper.'),
   })
 
   const filteredPapers = papers?.filter((p) => statusFilter === 'all' || p.conferenceStatus === statusFilter) ?? []
+
+  // Double confirm sesuai permintaan eksplisit — insiden paper ke-ACC
+  // nggak sengaja (dan butuh dibenerin manual lewat SQL) yang jadi
+  // alasan fitur ini dibikin, jadi tombolnya sengaja dibikin nggak
+  // gampang kepencet.
+  const handleCancelDecision = (paperId: string, paperTitle: string) => {
+    if (!confirm(`Batalkan keputusan untuk "${paperTitle}"? Status akan kembali ke Unassigned/Waiting.`)) return
+    if (!confirm('Konfirmasi sekali lagi — keputusan Accept/Reject sebelumnya akan dihapus. Lanjutkan?')) return
+    statusMutation.mutate({ paperId, status: 'Waiting' })
+  }
 
   const columns = useMemo<ColumnDef<Paper, any>[]>(
     () => [
@@ -117,11 +128,20 @@ export function ReviewPaperPage() {
             >
               Reject
             </button>
+            {row.original.conferenceStatus !== 'Waiting' && (
+              <button
+                disabled={statusMutation.isPending}
+                onClick={() => handleCancelDecision(row.original.paperId, row.original.paperTitle)}
+                className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+              >
+                Batalkan Keputusan
+              </button>
+            )}
           </div>
         ),
       },
     ],
-    [statusMutation],
+    [statusMutation, handleCancelDecision],
   )
 
   return (
