@@ -24,6 +24,7 @@ import { GenerateLoaPage } from './pages/GenerateLoaPage'
 import { CertificateManagementPage } from './pages/CertificateManagementPage'
 import { PaymentPage } from './pages/PaymentPage'
 import { PaymentManagementPage } from './pages/PaymentManagementPage'
+import { PaymentWriterDetailPage } from './pages/PaymentWriterDetailPage'
 import { JoinConferencePage } from './pages/JoinConferencePage'
 import { GuidePage } from './pages/GuidePage'
 import { FunctionalTestPage } from './pages/FunctionalTestPage'
@@ -67,9 +68,14 @@ const adminRoutes = allPaths
   // hasil derive dari MENU kayak path lain.
   .concat([{ path: '/admin/users/:id', element: <UserDetailPage /> }])
 
+// /payment/manage/:paymentId bukan item menu (diakses lewat link "Detail"
+// di Kelola Pembayaran, bukan sidebar) — sama pola-nya kayak /admin/users/:id.
+const paymentDetailRoute = { path: '/payment/manage/:paymentId', element: <PaymentWriterDetailPage /> }
+
 const domainRoutes = allPaths
   .filter((path) => !path.startsWith('/admin'))
   .map((path) => ({ path, element: builtRoutes[path] ?? <ComingSoonPage /> }))
+  .concat([paymentDetailRoute])
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },

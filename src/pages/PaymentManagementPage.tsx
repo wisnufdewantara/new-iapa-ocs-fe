@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
@@ -18,6 +19,7 @@ interface TeamRow {
   amount: number | null
   status: string | null
   sentInvoice: boolean
+  hasProof: boolean
 }
 
 interface ParticipantRow {
@@ -145,20 +147,37 @@ export function PaymentManagementPage() {
         enableGlobalFilter: false,
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => verifyTeam.mutate({ paymentId: row.original.paymentId, action: 'accept' })}
-              className="text-sm font-medium text-green-600 hover:underline dark:text-green-400"
+            <Link
+              to={`/payment/manage/${row.original.paymentId}`}
+              className="text-sm font-medium text-gray-600 hover:underline dark:text-gray-300"
             >
-              Accept
-            </button>
-            <button
-              onClick={() =>
-                reject((reason) => verifyTeam.mutate({ paymentId: row.original.paymentId, action: 'reject', reason }))
-              }
-              className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
-            >
-              Reject
-            </button>
+              Detail
+            </Link>
+            {row.original.hasProof ? (
+              <>
+                <button
+                  onClick={() => verifyTeam.mutate({ paymentId: row.original.paymentId, action: 'accept' })}
+                  className="text-sm font-medium text-green-600 hover:underline dark:text-green-400"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() =>
+                    reject((reason) =>
+                      verifyTeam.mutate({ paymentId: row.original.paymentId, action: 'reject', reason }),
+                    )
+                  }
+                  className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
+                >
+                  Reject
+                </button>
+              </>
+            ) : (
+              // Belum ada bukti transfer di-upload — Accept/Reject cuma
+              // masuk akal setelah ada bukti, jadi disembunyikan biar gak
+              // kepencet nge-verify pembayaran yang belum beneran masuk.
+              <span className="text-xs italic text-gray-400 dark:text-gray-500">Belum ada bukti transfer</span>
+            )}
             <button
               onClick={() => sendInvoiceTeam.mutate(row.original.paymentId)}
               className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
