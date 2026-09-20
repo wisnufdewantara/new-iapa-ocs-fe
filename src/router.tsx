@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminGate } from './components/AdminGate'
+import { RouteAccessGate } from './components/RouteAccessGate'
 import { HomePage } from './pages/HomePage'
 import { EventHistoryPage } from './pages/EventHistoryPage'
 import { EventDetailPage } from './pages/EventDetailPage'
@@ -90,10 +91,15 @@ export const router = createBrowserRouter([
       {
         element: <Layout />,
         children: [
-          ...domainRoutes,
           {
-            element: <AdminGate />,
-            children: adminRoutes,
+            element: <RouteAccessGate />,
+            children: [
+              ...domainRoutes,
+              {
+                element: <AdminGate />,
+                children: adminRoutes,
+              },
+            ],
           },
         ],
       },
