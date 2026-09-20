@@ -149,9 +149,9 @@ export function PaymentManagementPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               to={`/payment/manage/${row.original.paymentId}`}
-              className="text-sm font-medium text-gray-600 hover:underline dark:text-gray-300"
+              className="rounded-md border border-brand-navy px-2 py-1 text-xs font-semibold text-brand-navy transition-colors hover:bg-brand-navy hover:text-white dark:border-brand-orange dark:text-brand-orange dark:hover:bg-brand-orange dark:hover:text-brand-dark-surface"
             >
-              Detail
+              Lihat Detail
             </Link>
             {row.original.hasProof ? (
               <>
