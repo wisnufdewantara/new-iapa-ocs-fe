@@ -27,7 +27,7 @@ export function Layout() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen((v) => !v)}
-              className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10 md:hidden"
+              className="btn btn-ghost md:hidden"
               aria-label="Buka menu"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,10 +47,7 @@ export function Layout() {
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <ThemeToggle />
-            <button
-              onClick={logout}
-              className="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-            >
+            <button onClick={logout} className="btn btn-danger-ghost btn-sm">
               Logout
             </button>
           </div>

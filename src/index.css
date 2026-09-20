@@ -14,6 +14,111 @@
   /* Latar dark mode: navy gelap (senada logo), bukan abu-abu generik */
   --color-brand-dark: #0d1b30;
   --color-brand-dark-surface: #132544;
+
+  /* Skala biru buat tombol/aksen — blue-800/900 SENGAJA sama persis
+     dengan brand-navy/brand-navy-dark di atas biar tetap senada logo,
+     tinggal dipakai ("biru pokoknya", terlepas dark/light mode — beda
+     dari pola brand-orange yang gantian pas dark mode). Bisa dipakai
+     ulang di tempat lain (referensi tema biru): --color-blue-50..900.
+  */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #194582;
+  --color-blue-900: #102c54;
+}
+
+/* Tombol standar biru — dipakai di halaman Pembayaran, bisa direuse
+   di halaman lain. 3 varian: primary (solid), outline, ghost (link-style). */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-sm {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+}
+.btn-primary {
+  background-color: var(--color-blue-700);
+  color: white;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-blue-800);
+}
+.dark .btn-primary {
+  background-color: var(--color-blue-600);
+}
+.dark .btn-primary:hover:not(:disabled) {
+  background-color: var(--color-blue-500);
+}
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--color-blue-700);
+  color: var(--color-blue-700);
+}
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--color-blue-50);
+}
+.dark .btn-outline {
+  border-color: var(--color-blue-400);
+  color: var(--color-blue-300);
+}
+.dark .btn-outline:hover:not(:disabled) {
+  background-color: rgb(255 255 255 / 0.06);
+}
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-blue-700);
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+.btn-ghost:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.dark .btn-ghost {
+  color: var(--color-blue-300);
+}
+.btn-danger-ghost {
+  background-color: transparent;
+  color: #dc2626;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+.btn-danger-ghost:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.dark .btn-danger-ghost {
+  color: #f87171;
+}
+.btn-success-ghost {
+  background-color: transparent;
+  color: #16a34a;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+.btn-success-ghost:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.dark .btn-success-ghost {
+  color: #4ade80;
 }
 
 @keyframes fade-slide-up {

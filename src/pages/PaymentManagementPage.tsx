@@ -147,17 +147,14 @@ export function PaymentManagementPage() {
         enableGlobalFilter: false,
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-3">
-            <Link
-              to={`/payment/manage/${row.original.paymentId}`}
-              className="rounded-md border border-brand-navy px-2 py-1 text-xs font-semibold text-brand-navy transition-colors hover:bg-brand-navy hover:text-white dark:border-brand-orange dark:text-brand-orange dark:hover:bg-brand-orange dark:hover:text-brand-dark-surface"
-            >
+            <Link to={`/payment/manage/${row.original.paymentId}`} className="btn btn-outline btn-sm">
               Lihat Detail
             </Link>
             {row.original.hasProof ? (
               <>
                 <button
                   onClick={() => verifyTeam.mutate({ paymentId: row.original.paymentId, action: 'accept' })}
-                  className="text-sm font-medium text-green-600 hover:underline dark:text-green-400"
+                  className="btn btn-success-ghost btn-sm"
                 >
                   Accept
                 </button>
@@ -167,7 +164,7 @@ export function PaymentManagementPage() {
                       verifyTeam.mutate({ paymentId: row.original.paymentId, action: 'reject', reason }),
                     )
                   }
-                  className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
+                  className="btn btn-danger-ghost btn-sm"
                 >
                   Reject
                 </button>
@@ -178,10 +175,7 @@ export function PaymentManagementPage() {
               // kepencet nge-verify pembayaran yang belum beneran masuk.
               <span className="text-xs italic text-gray-400 dark:text-gray-500">Belum ada bukti transfer</span>
             )}
-            <button
-              onClick={() => sendInvoiceTeam.mutate(row.original.paymentId)}
-              className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
-            >
+            <button onClick={() => sendInvoiceTeam.mutate(row.original.paymentId)} className="btn btn-ghost btn-sm">
               {row.original.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
             </button>
           </div>
@@ -204,7 +198,7 @@ export function PaymentManagementPage() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => verifyParticipant.mutate({ attendanceId: row.original.attendanceId, action: 'accept' })}
-              className="text-sm font-medium text-green-600 hover:underline dark:text-green-400"
+              className="btn btn-success-ghost btn-sm"
             >
               Accept
             </button>
@@ -214,13 +208,13 @@ export function PaymentManagementPage() {
                   verifyParticipant.mutate({ attendanceId: row.original.attendanceId, action: 'reject', reason }),
                 )
               }
-              className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
+              className="btn btn-danger-ghost btn-sm"
             >
               Reject
             </button>
             <button
               onClick={() => sendInvoiceParticipant.mutate(row.original.attendanceId)}
-              className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
+              className="btn btn-ghost btn-sm"
             >
               {row.original.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
             </button>

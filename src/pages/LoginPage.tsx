@@ -61,11 +61,7 @@ export function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-brand-navy py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-          >
+          <button type="submit" disabled={loading} className="btn btn-primary w-full">
             {loading ? 'Memproses...' : 'Login'}
           </button>
           <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">

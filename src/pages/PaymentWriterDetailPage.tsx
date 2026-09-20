@@ -98,7 +98,7 @@ export function PaymentWriterDetailPage() {
 
   return (
     <div>
-      <Link to="/payment/manage" className="mb-4 inline-block text-sm text-brand-navy hover:underline dark:text-brand-orange">
+      <Link to="/payment/manage" className="btn btn-ghost btn-sm mb-4">
         &larr; Kembali ke Kelola Pembayaran
       </Link>
 
@@ -157,17 +157,13 @@ export function PaymentWriterDetailPage() {
           <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{rupiah(data.totalFee)}</p>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={() => save.mutate()}
-            disabled={save.isPending}
-            className="rounded-md bg-brand-navy px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 dark:bg-brand-orange"
-          >
+          <button onClick={() => save.mutate()} disabled={save.isPending} className="btn btn-primary">
             {save.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
           <button
             onClick={() => sendInvoice.mutate()}
             disabled={sendInvoice.isPending || data.totalFee == null}
-            className="rounded-md border border-brand-navy px-4 py-2 text-sm font-medium text-brand-navy hover:bg-brand-navy/5 disabled:opacity-50 dark:border-brand-orange dark:text-brand-orange"
+            className="btn btn-outline"
           >
             {data.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
           </button>

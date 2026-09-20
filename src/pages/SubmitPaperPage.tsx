@@ -184,7 +184,7 @@ export function SubmitPaperPage() {
               href={myPaper.documentUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-3 inline-block text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
+              className="btn btn-ghost mt-3"
             >
               Lihat dokumen
             </a>
@@ -320,7 +320,7 @@ export function SubmitPaperPage() {
             <button
               type="button"
               onClick={() => setAuthors((prev) => [...prev, { ...emptyAuthor }])}
-              className="text-xs font-medium text-brand-navy hover:underline dark:text-brand-orange"
+              className="btn btn-ghost btn-sm"
             >
               + Tambah Penulis
             </button>
@@ -337,7 +337,7 @@ export function SubmitPaperPage() {
                     <button
                       type="button"
                       onClick={() => setAuthors((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="text-xs font-medium text-red-500 hover:underline"
+                      className="btn btn-danger-ghost btn-sm"
                     >
                       Hapus
                     </button>
@@ -398,13 +398,13 @@ export function SubmitPaperPage() {
         <button
           type="submit"
           disabled={submitMutation.isPending}
-          className="rounded-md bg-brand-navy px-5 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+          className="btn btn-primary"
         >
           {submitMutation.isPending ? 'Mengirim...' : 'Submit Paper'}
         </button>
       </form>
 
-      <Link to="/dashboard" className="mt-4 inline-block text-sm text-gray-500 hover:underline dark:text-gray-400">
+      <Link to="/dashboard" className="btn btn-ghost btn-sm mt-4">
         ← Kembali ke Dashboard
       </Link>
     </div>

@@ -98,10 +98,7 @@ export function AssignReviewerPage() {
         enableSorting: false,
         enableGlobalFilter: false,
         cell: ({ row }) => (
-          <button
-            onClick={() => setAssigningPaper(row.original)}
-            className="rounded-md border border-brand-navy px-2 py-1 text-xs font-medium text-brand-navy hover:bg-brand-navy hover:text-white dark:border-brand-orange dark:text-brand-orange dark:hover:bg-brand-orange dark:hover:text-brand-dark"
-          >
+          <button onClick={() => setAssigningPaper(row.original)} className="btn btn-outline btn-sm">
             + Assign Reviewer
           </button>
         ),
@@ -170,18 +167,10 @@ export function AssignReviewerPage() {
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <button
-              type="submit"
-              disabled={assignMutation.isPending}
-              className="rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-            >
+            <button type="submit" disabled={assignMutation.isPending} className="btn btn-primary">
               {assignMutation.isPending ? 'Menyimpan...' : 'Simpan'}
             </button>
-            <button
-              type="button"
-              onClick={() => setAssigningPaper(null)}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-white/15 dark:text-gray-300"
-            >
+            <button type="button" onClick={() => setAssigningPaper(null)} className="btn btn-outline">
               Batal
             </button>
           </div>

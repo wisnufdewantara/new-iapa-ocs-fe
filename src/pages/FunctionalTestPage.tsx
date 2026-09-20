@@ -251,7 +251,7 @@ export function FunctionalTestPage() {
         <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
           Halaman ini cuma aktif kalau admin menyalakannya lewat Dashboard Developer.
         </p>
-        <Link to="/" className="mt-2 text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange">
+        <Link to="/" className="btn btn-ghost btn-sm mt-2">
           ← Kembali ke Beranda
         </Link>
       </div>

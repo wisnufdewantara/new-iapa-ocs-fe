@@ -56,7 +56,7 @@ function BulkSendButton({
       <button
         onClick={() => onSend(unsent.map((r) => ({ attendanceId: r.attendanceId, type })))}
         disabled={pending || unsent.length === 0}
-        className="rounded-md border border-brand-navy px-3 py-1.5 text-sm font-medium text-brand-navy hover:bg-brand-navy hover:text-white disabled:opacity-40 dark:border-brand-orange dark:text-brand-orange dark:hover:bg-brand-orange dark:hover:text-brand-dark"
+        className="btn btn-outline"
       >
         Kirim ke {unsent.length} yang Belum Terkirim
       </button>
@@ -171,14 +171,14 @@ export function CertificateManagementPage() {
         <div className="flex gap-3">
           <button
             onClick={() => download(row.original.attendanceId, type)}
-            className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
+            className="btn btn-ghost btn-sm"
           >
             Download
           </button>
           <button
             onClick={() => send.mutate({ attendanceId: row.original.attendanceId, type })}
             disabled={send.isPending}
-            className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
+            className="btn btn-ghost btn-sm"
           >
             Kirim
           </button>
@@ -284,7 +284,7 @@ export function CertificateManagementPage() {
                         <button
                           onClick={() => sendAward.mutate('best_paper')}
                           disabled={sendAward.isPending}
-                          className="rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+                          className="btn btn-primary"
                         >
                           {data.awards.paperCertificateSent ? 'Kirim Ulang' : 'Kirim Sertifikat'}
                         </button>
@@ -316,7 +316,7 @@ export function CertificateManagementPage() {
                         <button
                           onClick={() => sendAward.mutate('best_presenter')}
                           disabled={sendAward.isPending}
-                          className="rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+                          className="btn btn-primary"
                         >
                           {data.awards.presenterCertificateSent ? 'Kirim Ulang' : 'Kirim Sertifikat'}
                         </button>

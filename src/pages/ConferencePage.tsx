@@ -201,7 +201,7 @@ export function ConferencePage() {
         cell: ({ row }) => (
           <button
             onClick={() => setSettingsConferenceId(row.original.conference_id)}
-            className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
+            className="btn btn-ghost btn-sm"
           >
             Atur
           </button>
@@ -217,10 +217,7 @@ export function ConferencePage() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Daftar Conference</h1>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark"
-        >
+        <button onClick={() => setShowForm((v) => !v)} className="btn btn-primary">
           {showForm ? 'Batal' : '+ Buat Conference'}
         </button>
       </div>
@@ -286,11 +283,7 @@ export function ConferencePage() {
               </select>
             </div>
           </div>
-          <button
-            type="submit"
-            disabled={createMutation.isPending}
-            className="mt-4 rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50"
-          >
+          <button type="submit" disabled={createMutation.isPending} className="btn btn-primary mt-4">
             {createMutation.isPending ? 'Menyimpan...' : 'Simpan'}
           </button>
         </form>
@@ -308,10 +301,7 @@ export function ConferencePage() {
             <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
               Pengaturan Acara — {settingsConference.conference_name}
             </h2>
-            <button
-              onClick={() => setSettingsConferenceId('')}
-              className="text-sm text-gray-500 hover:underline dark:text-gray-400"
-            >
+            <button onClick={() => setSettingsConferenceId('')} className="btn btn-ghost btn-sm">
               Tutup
             </button>
           </div>
@@ -326,7 +316,7 @@ export function ConferencePage() {
             <button
               disabled={deadlineDraft === (deadlineSetting?.setting_value ?? '') || saveDeadlineMutation.isPending}
               onClick={() => saveDeadlineMutation.mutate(deadlineDraft)}
-              className="rounded-md bg-brand-navy px-3 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+              className="btn btn-primary"
             >
               Simpan
             </button>
@@ -337,11 +327,7 @@ export function ConferencePage() {
             <button
               onClick={() => toggleSubmissionMutation.mutate(!submissionOpen)}
               disabled={toggleSubmissionMutation.isPending}
-              className={`rounded-md px-3 py-2 text-sm font-semibold disabled:opacity-40 ${
-                submissionOpen
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-500/10 dark:text-green-400'
-                  : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:text-red-400'
-              }`}
+              className={`btn ${submissionOpen ? 'btn-success-ghost' : 'btn-danger-ghost'}`}
             >
               {submissionOpen ? 'Terbuka — klik buat tutup' : 'Ditutup — klik buat buka lagi'}
             </button>
@@ -378,21 +364,21 @@ export function ConferencePage() {
                       <button
                         disabled={i === 0 || movePosterMutation.isPending}
                         onClick={() => movePosterMutation.mutate({ posterId: p.id, direction: 'up' })}
-                        className="text-gray-500 hover:text-gray-800 disabled:opacity-30 dark:text-gray-400 dark:hover:text-gray-100"
+                        className="btn btn-ghost btn-sm"
                       >
                         ↑
                       </button>
                       <button
                         disabled={i === posters.length - 1 || movePosterMutation.isPending}
                         onClick={() => movePosterMutation.mutate({ posterId: p.id, direction: 'down' })}
-                        className="text-gray-500 hover:text-gray-800 disabled:opacity-30 dark:text-gray-400 dark:hover:text-gray-100"
+                        className="btn btn-ghost btn-sm"
                       >
                         ↓
                       </button>
                     </div>
                     <button
                       onClick={() => confirm('Hapus poster ini?') && deletePosterMutation.mutate(p.id)}
-                      className="text-red-500 hover:text-red-700"
+                      className="btn btn-danger-ghost btn-sm"
                     >
                       Hapus
                     </button>

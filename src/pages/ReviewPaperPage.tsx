@@ -80,7 +80,7 @@ export function ReviewPaperPage() {
               href={row.original.documentUrl}
               target="_blank"
               rel="noreferrer"
-              className="font-medium text-brand-navy hover:underline"
+              className="btn btn-ghost"
             >
               {row.original.paperTitle}
             </a>
@@ -117,14 +117,14 @@ export function ReviewPaperPage() {
             <button
               disabled={row.original.conferenceStatus === 'Accepted' || statusMutation.isPending}
               onClick={() => statusMutation.mutate({ paperId: row.original.paperId, status: 'Accepted' })}
-              className="rounded-md border border-green-300 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-50 disabled:opacity-40"
+              className="btn btn-success-ghost btn-sm"
             >
               Accept
             </button>
             <button
               disabled={row.original.conferenceStatus === 'Rejected' || statusMutation.isPending}
               onClick={() => statusMutation.mutate({ paperId: row.original.paperId, status: 'Rejected' })}
-              className="rounded-md border border-red-300 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-40"
+              className="btn btn-danger-ghost btn-sm"
             >
               Reject
             </button>
@@ -132,7 +132,7 @@ export function ReviewPaperPage() {
               <button
                 disabled={statusMutation.isPending}
                 onClick={() => handleCancelDecision(row.original.paperId, row.original.paperTitle)}
-                className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+                className="btn btn-outline btn-sm"
               >
                 Batalkan Keputusan
               </button>

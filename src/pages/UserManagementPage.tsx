@@ -110,7 +110,7 @@ export function UserManagementPage() {
         accessorKey: 'username',
         header: 'Username',
         cell: ({ row }) => (
-          <Link to={`/admin/users/${row.original.userId}`} className="font-medium text-brand-navy hover:underline dark:text-brand-orange">
+          <Link to={`/admin/users/${row.original.userId}`} className="btn btn-ghost btn-sm">
             {row.original.username}
           </Link>
         ),
@@ -151,7 +151,7 @@ export function UserManagementPage() {
           <button
             onClick={() => confirmDelete(row.original)}
             disabled={deleteMutation.isPending}
-            className="text-xs font-medium text-red-500 hover:text-red-700 disabled:opacity-40"
+            className="btn btn-danger-ghost btn-sm"
           >
             Hapus
           </button>
@@ -165,10 +165,7 @@ export function UserManagementPage() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Kelola Role</h1>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-        >
+        <button onClick={() => setShowForm((v) => !v)} className="btn btn-primary">
           {showForm ? 'Batal' : '+ Buat User'}
         </button>
       </div>
@@ -229,11 +226,7 @@ export function UserManagementPage() {
               <input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} required className={fieldClass} />
             </Field>
           </div>
-          <button
-            type="submit"
-            disabled={createMutation.isPending}
-            className="mt-4 rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-          >
+          <button type="submit" disabled={createMutation.isPending} className="btn btn-primary mt-4">
             {createMutation.isPending ? 'Menyimpan...' : 'Buat User'}
           </button>
         </form>

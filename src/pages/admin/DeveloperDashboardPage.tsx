@@ -143,7 +143,7 @@ export function DeveloperDashboardPage() {
                 {functionalTestConfig?.enabled ? 'Nonaktifkan' : 'Aktifkan'}
               </button>
               {functionalTestConfig?.enabled && (
-                <a href="/functional-test" target="_blank" rel="noreferrer" className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange">
+                <a href="/functional-test" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
                   Buka halaman →
                 </a>
               )}

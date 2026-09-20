@@ -45,16 +45,10 @@ function ConferenceBlock({ conference, delay }: { conference: Conference; delay:
           </p>
         )}
         <div className="animate-fade-slide-up mt-3 flex flex-wrap gap-3" style={{ animationDelay: `${delay + 200}ms` }}>
-          <Link
-            to="/register"
-            className="rounded-sm bg-brand-orange px-7 py-3.5 text-center font-sans text-sm font-semibold text-white hover:bg-brand-orange-dark"
-          >
+          <Link to="/register" className="btn btn-primary font-sans">
             Daftar Sebagai Peserta
           </Link>
-          <Link
-            to="/login"
-            className="rounded-sm border border-[#1c1917] px-7 py-3.5 text-center font-sans text-sm font-semibold text-[#1c1917] hover:bg-[#1c1917] hover:text-white dark:border-gray-300 dark:text-gray-100 dark:hover:bg-white dark:hover:text-brand-dark"
-          >
+          <Link to="/login" className="btn btn-outline font-sans">
             Submit Paper
           </Link>
         </div>
@@ -105,24 +99,15 @@ export function HomePage() {
               <span className="hidden text-[#57534e] sm:inline dark:text-gray-400">
                 Hai, <span className="font-semibold text-[#1c1917] dark:text-gray-100">{user.firstName}</span>
               </span>
-              <Link
-                to="/dashboard"
-                className="font-semibold text-brand-navy hover:text-brand-navy-dark dark:text-brand-orange dark:hover:text-brand-orange-dark"
-              >
+              <Link to="/dashboard" className="btn btn-ghost">
                 Ke Dashboard
               </Link>
-              <button
-                onClick={logout}
-                className="font-semibold text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-              >
+              <button onClick={logout} className="btn btn-ghost">
                 Logout
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="font-sans text-sm font-semibold text-[#1c1917] hover:text-brand-navy dark:text-gray-200 dark:hover:text-brand-orange"
-            >
+            <Link to="/login" className="btn btn-ghost font-sans">
               Login
             </Link>
           )}
@@ -148,10 +133,7 @@ export function HomePage() {
       </main>
 
       <footer className="flex justify-center border-t border-[#ddd6c8] px-6 py-8 dark:border-white/10 sm:px-16">
-        <Link
-          to="/event-history"
-          className="rounded-sm border border-brand-navy px-6 py-3 font-sans text-sm font-semibold text-brand-navy hover:bg-brand-navy hover:text-white dark:border-brand-orange dark:text-brand-orange dark:hover:bg-brand-orange dark:hover:text-brand-dark"
-        >
+        <Link to="/event-history" className="btn btn-outline font-sans">
           Lihat Event Sebelumnya
         </Link>
       </footer>

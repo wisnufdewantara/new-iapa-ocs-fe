@@ -152,11 +152,7 @@ export function ProfilePage() {
             />
           </div>
         </div>
-        <button
-          type="submit"
-          disabled={saveMutation.isPending}
-          className="mt-4 rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-        >
+        <button type="submit" disabled={saveMutation.isPending} className="btn btn-primary mt-4">
           {saveMutation.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
       </form>
@@ -208,11 +204,7 @@ export function ProfilePage() {
             />
           </div>
         </div>
-        <button
-          type="submit"
-          disabled={passwordMutation.isPending}
-          className="mt-4 rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-        >
+        <button type="submit" disabled={passwordMutation.isPending} className="btn btn-primary mt-4">
           {passwordMutation.isPending ? 'Menyimpan...' : 'Ganti Password'}
         </button>
       </form>

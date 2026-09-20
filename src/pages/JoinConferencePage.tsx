@@ -115,7 +115,7 @@ export function JoinConferencePage() {
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Status pembayaran: {myParticipant.payment_status ? (STATUS_LABEL[myParticipant.payment_status] ?? myParticipant.payment_status) : '-'}
           </p>
-          <Link to="/payment" className="mt-3 inline-block text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange">
+          <Link to="/payment" className="btn btn-ghost btn-sm mt-3">
             Lihat & bayar di halaman Pembayaran →
           </Link>
         </div>
@@ -208,13 +208,13 @@ export function JoinConferencePage() {
         <button
           type="submit"
           disabled={isMember === '' || joinMutation.isPending}
-          className="rounded-md bg-brand-navy px-5 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+          className="btn btn-primary"
         >
           {joinMutation.isPending ? 'Memproses...' : 'Join Sebagai Peserta'}
         </button>
       </form>
 
-      <Link to="/dashboard" className="mt-4 inline-block text-sm text-gray-500 hover:underline dark:text-gray-400">
+      <Link to="/dashboard" className="btn btn-ghost btn-sm mt-4">
         ← Kembali ke Dashboard
       </Link>
     </div>

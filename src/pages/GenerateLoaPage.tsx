@@ -113,14 +113,14 @@ export function GenerateLoaPage() {
           <div className="flex gap-3">
             <button
               onClick={() => download(row.original.paperId)}
-              className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
+              className="btn btn-ghost btn-sm"
             >
               Download
             </button>
             <button
               onClick={() => sendOne.mutate(row.original.paperId)}
               disabled={sendOne.isPending}
-              className="text-sm font-medium text-brand-navy hover:underline dark:text-brand-orange"
+              className="btn btn-ghost btn-sm"
             >
               Kirim
             </button>
@@ -160,7 +160,7 @@ export function GenerateLoaPage() {
             <button
               onClick={() => sendBulk.mutate()}
               disabled={selected.size === 0 || sendBulk.isPending}
-              className="rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+              className="btn btn-primary"
             >
               {sendBulk.isPending ? 'Mengirim...' : `Kirim LoA (${selected.size} terpilih)`}
             </button>

@@ -98,10 +98,7 @@ export function RegisterPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-brand-dark">
       <header className="flex items-center justify-between p-4">
-        <Link
-          to="/"
-          className="text-sm font-medium text-gray-500 hover:text-brand-navy dark:text-gray-400 dark:hover:text-brand-orange"
-        >
+        <Link to="/" className="btn btn-ghost btn-sm">
           ← Beranda
         </Link>
         <ThemeToggle />
@@ -206,11 +203,7 @@ export function RegisterPage() {
             </Field>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-6 w-full rounded-md bg-brand-navy py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-          >
+          <button type="submit" disabled={loading} className="btn btn-primary mt-6 w-full">
             {loading ? 'Memproses...' : 'Create Account'}
           </button>
 

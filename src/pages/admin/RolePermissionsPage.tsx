@@ -112,11 +112,7 @@ export function RolePermissionsPage() {
               placeholder="Nama role baru"
               className="min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
             />
-            <button
-              type="submit"
-              disabled={createRole.isPending}
-              className="rounded-md bg-brand-navy px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
-            >
+            <button type="submit" disabled={createRole.isPending} className="btn btn-primary btn-sm">
               +
             </button>
           </form>
@@ -138,7 +134,7 @@ export function RolePermissionsPage() {
                 {!r.is_system && (
                   <button
                     onClick={() => confirm(`Hapus role "${r.name}"?`) && deleteRole.mutate(r.id)}
-                    className="px-1 text-xs text-red-500 hover:text-red-700"
+                    className="btn btn-danger-ghost btn-sm"
                   >
                     Hapus
                   </button>

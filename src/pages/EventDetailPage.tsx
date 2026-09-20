@@ -41,10 +41,7 @@ export function EventDetailPage() {
         </Link>
         <div className="flex items-center gap-4">
           <ThemeToggle className="text-[#1c1917] dark:text-gray-200" />
-          <Link
-            to="/event-history"
-            className="font-sans text-sm font-semibold text-brand-navy hover:text-brand-navy-dark dark:text-brand-orange dark:hover:text-brand-orange-dark"
-          >
+          <Link to="/event-history" className="btn btn-ghost btn-sm font-sans">
             ← Riwayat Event
           </Link>
         </div>

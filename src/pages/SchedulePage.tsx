@@ -123,7 +123,7 @@ export function SchedulePage() {
         <>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="mb-4 rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark"
+            className="btn btn-primary mb-4"
           >
             {showForm ? 'Batal' : '+ Tambah Jadwal'}
           </button>
@@ -193,7 +193,7 @@ export function SchedulePage() {
               <button
                 type="submit"
                 disabled={createMutation.isPending}
-                className="mt-4 rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-50"
+                className="btn btn-primary mt-4"
               >
                 {createMutation.isPending ? 'Menyimpan...' : 'Simpan'}
               </button>

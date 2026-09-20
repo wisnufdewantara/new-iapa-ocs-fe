@@ -158,7 +158,7 @@ export function SettingsPage() {
                 <button
                   disabled={!dirty || updateMutation.isPending}
                   onClick={() => updateMutation.mutate({ key: s.settingKey, value: draft })}
-                  className="rounded-md bg-brand-navy px-3 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+                  className="btn btn-primary btn-sm"
                 >
                   Simpan
                 </button>
@@ -180,7 +180,7 @@ export function SettingsPage() {
           <button
             onClick={() => testSmtpMutation.mutate()}
             disabled={testSmtpMutation.isPending}
-            className="rounded-md border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-navy/5 disabled:opacity-50 dark:border-brand-orange dark:text-brand-orange"
+            className="btn btn-outline"
           >
             {testSmtpMutation.isPending ? 'Mengirim...' : 'Test SMTP'}
           </button>
@@ -218,7 +218,7 @@ export function SettingsPage() {
                     <button
                       disabled={!dirty || updateMutation.isPending}
                       onClick={() => updateMutation.mutate({ key: s.settingKey, value: draft })}
-                      className="rounded-md bg-brand-navy px-3 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+                      className="btn btn-primary btn-sm"
                     >
                       Simpan
                     </button>
@@ -285,7 +285,7 @@ export function SettingsPage() {
                 templateMutation.isPending ||
                 (templateDraft.subject === activeTemplate.subject && templateDraft.bodyHtml === activeTemplate.bodyHtml)
               }
-              className="self-start rounded-md bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-dark disabled:opacity-40 dark:bg-brand-orange dark:hover:bg-brand-orange-dark"
+              className="btn btn-primary self-start"
             >
               {templateMutation.isPending ? 'Menyimpan...' : 'Simpan Template'}
             </button>
