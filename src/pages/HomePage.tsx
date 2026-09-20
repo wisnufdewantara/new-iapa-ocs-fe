@@ -20,6 +20,12 @@ const fmt = (d: string | null) =>
   d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : null
 
 function ConferenceBlock({ conference, delay }: { conference: Conference; delay: number }) {
+  // Kalau udah login, "Daftar Sebagai Peserta"/"Submit Paper" harusnya
+  // nggak nyuruh registrasi/login ulang lagi (percuma, akunnya udah ada)
+  // — langsung ke aksi yang sebenarnya dimaksud: Join Conference /
+  // Submit Paper. Header di halaman ini udah auth-aware ("Ke Dashboard"
+  // vs "Login"), CTA hero ini nyusul pola yang sama.
+  const user = useAuthStore((s) => s.user)
   const dateRange = conference.conference_end_date
     ? `${fmt(conference.conference_date)} – ${fmt(conference.conference_end_date)}`
     : fmt(conference.conference_date)
@@ -45,10 +51,10 @@ function ConferenceBlock({ conference, delay }: { conference: Conference; delay:
           </p>
         )}
         <div className="animate-fade-slide-up mt-3 flex flex-wrap gap-3" style={{ animationDelay: `${delay + 200}ms` }}>
-          <Link to="/register" className="btn btn-primary font-sans">
+          <Link to={user ? '/join' : '/register'} className="btn btn-primary font-sans">
             Daftar Sebagai Peserta
           </Link>
-          <Link to="/login" className="btn btn-outline font-sans">
+          <Link to={user ? '/papers/submit' : '/login'} className="btn btn-outline font-sans">
             Submit Paper
           </Link>
         </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { usePageTitle } from '../hooks/usePageTitle'
 import type { Role } from '../types/role'
@@ -168,19 +169,42 @@ const GUIDES: RoleGuide[] = [
 export function GuidePage() {
   usePageTitle('Panduan Penggunaan')
   const myRole = useAuthStore((s) => s.user?.role)
-  // Setiap role cuma boleh lihat panduan role-nya sendiri — bukan tab
-  // yang bisa diklik pindah ke role lain, biar orang gak salah kira dia
-  // punya akses ke menu yang sebenarnya bukan buat dia.
-  const guide = GUIDES.find((g) => g.role === myRole) ?? GUIDES[0]
+  // Setiap role cuma boleh lihat panduan role-nya sendiri — KECUALI Admin
+  // (superuser), yang boleh liat semua panduan buat referensi/support,
+  // makanya cuma Admin yang dapet tab switcher di bawah.
+  const isAdmin = myRole === 'Admin'
+  const [active, setActive] = useState<Role>(myRole ?? 'Peserta')
+  const guide = GUIDES.find((g) => g.role === (isAdmin ? active : myRole)) ?? GUIDES[0]
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Panduan Penggunaan</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Cara pakai newocs untuk peran kamu: <strong>{guide.label}</strong>
+          {isAdmin
+            ? 'Sebagai Admin, kamu bisa lihat panduan semua peran di bawah.'
+            : <>Cara pakai newocs untuk peran kamu: <strong>{guide.label}</strong></>}
         </p>
       </div>
+
+      {isAdmin && (
+        <div className="flex flex-wrap gap-2 border-b border-gray-200 dark:border-white/10">
+          {GUIDES.map((g) => (
+            <button
+              key={g.role}
+              onClick={() => setActive(g.role)}
+              className={`rounded-t-md px-4 py-2 text-sm font-medium ${
+                active === g.role
+                  ? 'border-b-2 border-blue-700 text-blue-700 dark:border-blue-400 dark:text-blue-300'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+              }`}
+            >
+              {g.label}
+              {myRole === g.role && <span className="ml-1.5 text-xs text-gray-400 dark:text-gray-500">(kamu)</span>}
+            </button>
+          ))}
+        </div>
+      )}
 
       <p className="text-sm text-gray-600 dark:text-gray-300">{guide.intro}</p>
 

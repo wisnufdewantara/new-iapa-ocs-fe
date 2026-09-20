@@ -13,7 +13,12 @@ import { AccessRestrictedPage } from '../pages/AccessRestrictedPage'
 // match langsung ke daftar dari /menu/mine (lihat router.tsx):
 //   /payment/manage/:paymentId -> udah ke-cover otomatis (startsWith)
 //   /admin/users/:id           -> induknya /admin/roles, beda string
+// Selalu boleh diakses siapa pun yang login, terlepas dari role_menu_items
+// — bukan halaman bisnis per-role, cuma info versi/riwayat update.
+const ALWAYS_ALLOWED = ['/changelog'];
+
 function isPathAllowed(pathname: string, allowedPaths: string[]): boolean {
+  if (ALWAYS_ALLOWED.includes(pathname)) return true
   if (allowedPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return true
   if (pathname.startsWith('/admin/users/') && allowedPaths.includes('/admin/roles')) return true
   return false

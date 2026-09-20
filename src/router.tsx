@@ -3,6 +3,7 @@ import { Layout } from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminGate } from './components/AdminGate'
 import { RouteAccessGate } from './components/RouteAccessGate'
+import { ChangelogPage } from './pages/ChangelogPage'
 import { HomePage } from './pages/HomePage'
 import { EventHistoryPage } from './pages/EventHistoryPage'
 import { EventDetailPage } from './pages/EventDetailPage'
@@ -73,10 +74,14 @@ const adminRoutes = allPaths
 // di Kelola Pembayaran, bukan sidebar) — sama pola-nya kayak /admin/users/:id.
 const paymentDetailRoute = { path: '/payment/manage/:paymentId', element: <PaymentWriterDetailPage /> }
 
+// /changelog bukan item MENU per-role (link tetap di footer Sidebar buat
+// semua orang) — lihat pengecualian di RouteAccessGate.
+const changelogRoute = { path: '/changelog', element: <ChangelogPage /> }
+
 const domainRoutes = allPaths
   .filter((path) => !path.startsWith('/admin'))
   .map((path) => ({ path, element: builtRoutes[path] ?? <ComingSoonPage /> }))
-  .concat([paymentDetailRoute])
+  .concat([paymentDetailRoute, changelogRoute])
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },

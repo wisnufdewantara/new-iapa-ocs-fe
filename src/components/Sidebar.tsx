@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { MENU } from '../config/menu'
 import { useMenu } from '../hooks/useMenu'
+import { APP_VERSION } from '../version'
 import logo from '../assets/logo-iapa.png'
 
 interface SidebarProps {
@@ -29,14 +30,14 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 w-64 shrink-0 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-200 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 dark:border-white/10 dark:bg-brand-dark-surface ${
+      className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col border-r border-gray-200 bg-white transition-transform duration-200 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 dark:border-white/10 dark:bg-brand-dark-surface ${
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <Link to="/" className="block px-4 py-5">
+      <Link to="/" className="block shrink-0 px-4 py-5">
         <img src={logo} alt="IAPA" className="h-8 w-auto" />
       </Link>
-      <nav className="px-2 pb-6">
+      <nav className="flex-1 overflow-y-auto px-2 pb-6">
         {groups.map((group) => (
           <div key={group.group} className="mb-4">
             <p className="px-2 mb-1 text-xs font-semibold uppercase text-gray-400 dark:text-gray-500">{group.group}</p>
@@ -59,6 +60,17 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
           </div>
         ))}
       </nav>
+
+      {/* Footer versioning — pola sama kayak IAPA Store (v{number}-{YYMMDD}
+          di footer). Beda dari MENU: ini bukan item per-role, jadi selalu
+          tampil buat semua orang yang login, terlepas dari role_menu_items. */}
+      <Link
+        to="/changelog"
+        onClick={onNavigate}
+        className="shrink-0 border-t border-gray-200 px-4 py-3 text-xs text-gray-400 hover:text-gray-600 dark:border-white/10 dark:text-gray-500 dark:hover:text-gray-300"
+      >
+        {APP_VERSION.label} <span className="opacity-60">·</span> Changelog
+      </Link>
     </aside>
   )
 }

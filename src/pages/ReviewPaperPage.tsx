@@ -24,9 +24,9 @@ interface Paper {
 }
 
 const STATUS_BADGE: Record<Paper['conferenceStatus'], string> = {
-  Waiting: 'bg-amber-100 text-amber-800 border-amber-300',
-  Accepted: 'bg-green-100 text-green-800 border-green-300',
-  Rejected: 'bg-red-100 text-red-800 border-red-300',
+  Waiting: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30',
+  Accepted: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30',
+  Rejected: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/30',
 }
 
 export function ReviewPaperPage() {
@@ -76,11 +76,15 @@ export function ReviewPaperPage() {
         header: 'Judul Paper',
         cell: ({ row }) =>
           row.original.documentUrl ? (
+            // SENGAJA bukan .btn — itu punya white-space:nowrap yang cocok
+            // buat label tombol pendek, tapi bikin judul paper (kalimat
+            // panjang) numpuk jadi 1 baris raksasa dan dorong kolom lain
+            // keluar layar. Link biasa yang boleh wrap.
             <a
               href={row.original.documentUrl}
               target="_blank"
               rel="noreferrer"
-              className="btn btn-ghost"
+              className="font-medium text-blue-700 underline hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
             >
               {row.original.paperTitle}
             </a>
