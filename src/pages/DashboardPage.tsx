@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuthStore } from '../stores/authStore'
+import { PesertaProgressDashboard } from './PesertaProgressDashboard'
 
 interface Conference {
   conference_id: string
@@ -9,8 +11,23 @@ interface Conference {
   conference_end_date: string | null
 }
 
+// Peserta dapet progress tracker pribadi (lihat PesertaProgressDashboard)
+// — daftar-semua-conference gak relevan buat mereka, termasuk yang udah
+// lewat. Role lain (Admin/Manager/dst) tetap lihat daftar conference,
+// itu emang kerjaan mereka ngelola/pantau semuanya.
 export function DashboardPage() {
   usePageTitle('Dashboard')
+  const role = useAuthStore((s) => s.user?.role)
+
+  return (
+    <div>
+      <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
+      {role === 'Peserta' ? <PesertaProgressDashboard /> : <ConferenceListDashboard />}
+    </div>
+  )
+}
+
+function ConferenceListDashboard() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['conferences'],
     queryFn: async () => (await api.get<Conference[]>('/conferences')).data,
@@ -18,7 +35,6 @@ export function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
       {isLoading && <p className="text-sm text-gray-500 dark:text-gray-400">Memuat data conference...</p>}
       {error && <p className="text-sm text-red-600 dark:text-red-400">Gagal memuat data dari server.</p>}
       <div className="grid gap-4 sm:grid-cols-2">
