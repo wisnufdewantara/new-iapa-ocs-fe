@@ -34,6 +34,7 @@ export function ReviewPaperPage() {
   const queryClient = useQueryClient()
   const [conferenceId, setConferenceId] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | Paper['conferenceStatus']>('all')
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
   const { data: conferences } = useQuery({
     queryKey: ['conferences'],
@@ -47,8 +48,15 @@ export function ReviewPaperPage() {
   })
 
   const statusMutation = useMutation({
-    mutationFn: ({ paperId, status }: { paperId: string; status: Paper['conferenceStatus'] }) =>
-      api.patch(`/papers/${paperId}/status`, { conferenceStatus: status }),
+    mutationFn: ({
+      paperId,
+      status,
+      reviewFeedback,
+    }: {
+      paperId: string
+      status: Paper['conferenceStatus']
+      reviewFeedback?: string
+    }) => api.patch(`/papers/${paperId}/status`, { conferenceStatus: status, reviewFeedback }),
     onSuccess: (_data, { status }) => {
       queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] })
       const label = status === 'Accepted' ? 'accept' : status === 'Rejected' ? 'reject' : 'batalkan'
@@ -57,7 +65,77 @@ export function ReviewPaperPage() {
     onError: (err) => toastError(err, 'Gagal mengubah status paper.'),
   })
 
+  // Feedback opsional, ditanya lewat prompt() biar Accept/Reject tetap
+  // 1-klik kalau reviewernya emang nggak mau nulis apa-apa (Cancel = nggak
+  // kirim feedback baru, bukan batal decision-nya).
+  const decideWithFeedback = (paperId: string, status: 'Accepted' | 'Rejected') => {
+    const feedback = window.prompt(
+      `Catatan/feedback untuk penulis (opsional, kosongkan kalau nggak ada):`,
+      '',
+    )
+    if (feedback === null) return
+    statusMutation.mutate({ paperId, status, reviewFeedback: feedback.trim() || undefined })
+  }
+
+  const bulkStatusMutation = useMutation({
+    mutationFn: (status: 'Accepted' | 'Rejected') =>
+      api.post<{ paperId: string; success: boolean; error?: string }[]>('/papers/status-bulk', {
+        paperIds: [...selected],
+        conferenceStatus: status,
+      }),
+    onSuccess: (res, status) => {
+      queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] })
+      const results = res.data
+      const failed = results.filter((r) => !r.success)
+      const label = status === 'Accepted' ? 'accept' : 'reject'
+      if (failed.length === 0) {
+        toastSuccess(`${results.length} paper berhasil di-${label}.`)
+      } else {
+        toastError(
+          new Error(failed.map((f) => f.error).join('; ')),
+          `${results.length - failed.length} berhasil, ${failed.length} gagal di-${label}.`,
+        )
+      }
+      setSelected(new Set())
+    },
+    onError: (err) => toastError(err, 'Gagal memproses secara massal.'),
+  })
+
+  const toggleSelected = (paperId: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(paperId)) next.delete(paperId)
+      else next.add(paperId)
+      return next
+    })
+  }
+
   const filteredPapers = papers?.filter((p) => statusFilter === 'all' || p.conferenceStatus === statusFilter) ?? []
+
+  const allFilteredSelected = filteredPapers.length > 0 && filteredPapers.every((p) => selected.has(p.paperId))
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      if (allFilteredSelected) {
+        const next = new Set(prev)
+        filteredPapers.forEach((p) => next.delete(p.paperId))
+        return next
+      }
+      const next = new Set(prev)
+      filteredPapers.forEach((p) => next.add(p.paperId))
+      return next
+    })
+  }
+
+  const handleBulkAccept = () => {
+    if (!confirm(`Accept ${selected.size} paper terpilih?`)) return
+    bulkStatusMutation.mutate('Accepted')
+  }
+
+  const handleBulkReject = () => {
+    if (!confirm(`Reject ${selected.size} paper terpilih?`)) return
+    if (!confirm('Konfirmasi sekali lagi — semua paper terpilih akan ditandai Rejected. Lanjutkan?')) return
+    bulkStatusMutation.mutate('Rejected')
+  }
 
   // Double confirm sesuai permintaan eksplisit — insiden paper ke-ACC
   // nggak sengaja (dan butuh dibenerin manual lewat SQL) yang jadi
@@ -71,6 +149,27 @@ export function ReviewPaperPage() {
 
   const columns = useMemo<ColumnDef<Paper, any>[]>(
     () => [
+      {
+        id: 'select',
+        header: () => (
+          <input
+            type="checkbox"
+            checked={allFilteredSelected}
+            onChange={toggleSelectAll}
+            className="h-4 w-4"
+          />
+        ),
+        enableSorting: false,
+        enableGlobalFilter: false,
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={selected.has(row.original.paperId)}
+            onChange={() => toggleSelected(row.original.paperId)}
+            className="h-4 w-4"
+          />
+        ),
+      },
       {
         accessorKey: 'paperTitle',
         header: 'Judul Paper',
@@ -120,14 +219,14 @@ export function ReviewPaperPage() {
           <div className="flex gap-2">
             <button
               disabled={row.original.conferenceStatus === 'Accepted' || statusMutation.isPending}
-              onClick={() => statusMutation.mutate({ paperId: row.original.paperId, status: 'Accepted' })}
+              onClick={() => decideWithFeedback(row.original.paperId, 'Accepted')}
               className="btn btn-success-ghost btn-sm"
             >
               Accept
             </button>
             <button
               disabled={row.original.conferenceStatus === 'Rejected' || statusMutation.isPending}
-              onClick={() => statusMutation.mutate({ paperId: row.original.paperId, status: 'Rejected' })}
+              onClick={() => decideWithFeedback(row.original.paperId, 'Rejected')}
               className="btn btn-danger-ghost btn-sm"
             >
               Reject
@@ -145,7 +244,7 @@ export function ReviewPaperPage() {
         ),
       },
     ],
-    [statusMutation, handleCancelDecision],
+    [statusMutation, handleCancelDecision, decideWithFeedback, selected, allFilteredSelected],
   )
 
   return (
@@ -158,7 +257,10 @@ export function ReviewPaperPage() {
           <select
             className="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
             value={conferenceId}
-            onChange={(e) => setConferenceId(e.target.value)}
+            onChange={(e) => {
+              setConferenceId(e.target.value)
+              setSelected(new Set())
+            }}
           >
             <option value="">-- pilih conference --</option>
             {conferences?.map((c) => (
@@ -185,12 +287,38 @@ export function ReviewPaperPage() {
         )}
       </div>
 
-      {conferenceId &&
-        (isLoading ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
-        ) : (
-          <DataTable columns={columns} data={filteredPapers} searchPlaceholder="Cari judul/presenter..." />
-        ))}
+      {conferenceId && (
+        <>
+          {selected.size > 0 && (
+            <div className="mb-3 flex items-center gap-3 rounded-md border border-gray-200 bg-gray-50 px-4 py-2 dark:border-white/10 dark:bg-white/5">
+              <span className="text-sm text-gray-600 dark:text-gray-300">{selected.size} paper terpilih</span>
+              <button
+                onClick={handleBulkAccept}
+                disabled={bulkStatusMutation.isPending}
+                className="btn btn-success-ghost btn-sm"
+              >
+                {bulkStatusMutation.isPending ? 'Memproses...' : 'Accept Terpilih'}
+              </button>
+              <button
+                onClick={handleBulkReject}
+                disabled={bulkStatusMutation.isPending}
+                className="btn btn-danger-ghost btn-sm"
+              >
+                {bulkStatusMutation.isPending ? 'Memproses...' : 'Reject Terpilih'}
+              </button>
+              <button onClick={() => setSelected(new Set())} className="btn btn-ghost btn-sm">
+                Batal Pilih
+              </button>
+            </div>
+          )}
+
+          {isLoading ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
+          ) : (
+            <DataTable columns={columns} data={filteredPapers} searchPlaceholder="Cari judul/presenter..." />
+          )}
+        </>
+      )}
     </div>
   )
 }

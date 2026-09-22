@@ -28,6 +28,7 @@ interface MyPaper {
   conferenceStatus: string | null
   paperStatus: string
   documentUrl: string | null
+  reviewFeedback: string | null
 }
 
 interface Profile {
@@ -188,6 +189,14 @@ export function SubmitPaperPage() {
             >
               Lihat dokumen
             </a>
+          )}
+          {myPaper.reviewFeedback && (
+            <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                Catatan dari Reviewer
+              </p>
+              <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200">{myPaper.reviewFeedback}</p>
+            </div>
           )}
         </div>
       </div>

@@ -15,6 +15,14 @@ interface Writer {
   fee: number
 }
 
+interface PaymentProof {
+  proofId: string
+  proofUrl: string
+  senderName: string | null
+  transferDate: string | null
+  uploadDate: string | null
+}
+
 interface PaperDetail {
   paymentId: string
   paperId: string
@@ -24,7 +32,10 @@ interface PaperDetail {
   writers: Writer[]
   paymentStatus: string | null
   sentInvoice: boolean
+  proofs: PaymentProof[]
 }
+
+const isImageUrl = (url: string) => /\.(png|jpe?g|gif|webp|bmp)$/i.test(url)
 
 const rupiah = (n: number | null) => (n == null ? '-' : `Rp${n.toLocaleString('id-ID')}`)
 
@@ -133,6 +144,35 @@ export function PaymentWriterDetailPage() {
 
       <h1 className="mb-1 text-xl font-bold text-gray-800 dark:text-gray-100">{data.paperTitle}</h1>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Submitter: {data.submitterName}</p>
+
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
+        <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Bukti Transfer</p>
+        {data.proofs.length === 0 ? (
+          <p className="text-sm italic text-gray-400 dark:text-gray-500">Belum ada bukti transfer diupload.</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {data.proofs.map((p) => (
+              <a
+                key={p.proofId}
+                href={p.proofUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="block rounded-md border border-gray-200 p-3 hover:border-blue-400 dark:border-white/10 dark:hover:border-blue-400"
+              >
+                {isImageUrl(p.proofUrl) ? (
+                  <img src={p.proofUrl} alt="Bukti transfer" className="mb-2 h-32 w-full rounded object-cover" />
+                ) : (
+                  <div className="mb-2 flex h-32 w-full items-center justify-center rounded bg-gray-100 text-xs text-gray-500 dark:bg-white/5 dark:text-gray-400">
+                    Lihat Dokumen
+                  </div>
+                )}
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-200">{p.senderName || 'Tanpa nama pengirim'}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{p.transferDate || '-'}</p>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
         <table className="w-full border-collapse text-sm">
