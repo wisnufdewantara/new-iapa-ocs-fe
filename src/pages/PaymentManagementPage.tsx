@@ -150,7 +150,11 @@ export function PaymentManagementPage() {
             <Link to={`/payment/manage/${row.original.paymentId}`} className="btn btn-outline btn-sm">
               Lihat Detail
             </Link>
-            {row.original.hasProof ? (
+            {row.original.status === 'verified' ? (
+              <span className="text-xs font-medium text-green-600 dark:text-green-400">✓ Sudah diverifikasi</span>
+            ) : row.original.status === 'rejected' ? (
+              <span className="text-xs font-medium text-red-600 dark:text-red-400">✗ Ditolak</span>
+            ) : row.original.hasProof ? (
               <>
                 <button
                   onClick={() => verifyTeam.mutate({ paymentId: row.original.paymentId, action: 'accept' })}
@@ -196,22 +200,30 @@ export function PaymentManagementPage() {
         enableGlobalFilter: false,
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => verifyParticipant.mutate({ attendanceId: row.original.attendanceId, action: 'accept' })}
-              className="btn btn-success-ghost btn-sm"
-            >
-              Accept
-            </button>
-            <button
-              onClick={() =>
-                reject((reason) =>
-                  verifyParticipant.mutate({ attendanceId: row.original.attendanceId, action: 'reject', reason }),
-                )
-              }
-              className="btn btn-danger-ghost btn-sm"
-            >
-              Reject
-            </button>
+            {row.original.status === 'verified' ? (
+              <span className="text-xs font-medium text-green-600 dark:text-green-400">✓ Sudah diverifikasi</span>
+            ) : row.original.status === 'rejected' ? (
+              <span className="text-xs font-medium text-red-600 dark:text-red-400">✗ Ditolak</span>
+            ) : (
+              <>
+                <button
+                  onClick={() => verifyParticipant.mutate({ attendanceId: row.original.attendanceId, action: 'accept' })}
+                  className="btn btn-success-ghost btn-sm"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() =>
+                    reject((reason) =>
+                      verifyParticipant.mutate({ attendanceId: row.original.attendanceId, action: 'reject', reason }),
+                    )
+                  }
+                  className="btn btn-danger-ghost btn-sm"
+                >
+                  Reject
+                </button>
+              </>
+            )}
             <button
               onClick={() => sendInvoiceParticipant.mutate(row.original.attendanceId)}
               className="btn btn-ghost btn-sm"

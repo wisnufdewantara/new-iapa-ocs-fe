@@ -76,6 +76,13 @@ const membershipChoice = (w: Writer) => {
   return ''
 }
 
+const MEMBERSHIP_LABEL: Record<string, string> = {
+  member: 'Member',
+  non_member: 'Non-Member',
+  non_payment: 'Non-Payment',
+  writer: 'Writer',
+}
+
 export function PaymentWriterDetailPage() {
   usePageTitle('Detail Pembayaran')
   const { paymentId } = useParams<{ paymentId: string }>()
@@ -85,7 +92,10 @@ export function PaymentWriterDetailPage() {
   // dari data writer sendiri biar gampang batal tanpa nyentuh state utama.
   const [editingOverride, setEditingOverride] = useState<Record<string, string>>({})
   // Fitur "Edit Penulis" — ganti nama, tambah, hapus penulis langsung dari
-  // halaman ini (sebelumnya cuma bisa lewat DB manual).
+  // halaman ini (sebelumnya cuma bisa lewat DB manual). SEMUANYA read-only
+  // sampai tombol "Override" dipencet — nggak ada satupun yang bisa
+  // diedit diam-diam tanpa sengaja masuk mode edit dulu.
+  const [editMode, setEditMode] = useState(false)
   const [deletedWriterIds, setDeletedWriterIds] = useState<Set<string>>(new Set())
   const [newWriterRows, setNewWriterRows] = useState<NewWriterDraft[]>([])
 
@@ -140,6 +150,7 @@ export function PaymentWriterDetailPage() {
       setEditingOverride({})
       setDeletedWriterIds(new Set())
       setNewWriterRows([])
+      setEditMode(false)
       toastSuccess('Perubahan berhasil disimpan.')
     },
     onError: (err) => toastError(err, 'Gagal menyimpan perubahan.'),
@@ -203,6 +214,17 @@ export function PaymentWriterDetailPage() {
   const updateWriterDraft = (tempId: string, patch: Partial<NewWriterDraft>) =>
     setNewWriterRows((prev) => prev.map((r) => (r.tempId === tempId ? { ...r, ...patch } : r)))
 
+  // Semua editan (nama/role/membership/tambah/hapus) cuma nyala setelah
+  // "Override" dipencet — batal balikin ke kondisi awal, nggak ada yang
+  // ke-save diam-diam.
+  const cancelEdit = () => {
+    if (data) setWriters(data.writers)
+    setEditingOverride({})
+    setDeletedWriterIds(new Set())
+    setNewWriterRows([])
+    setEditMode(false)
+  }
+
   if (isLoading) return <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
   if (!data) return <p className="text-sm text-gray-500 dark:text-gray-400">Data tidak ditemukan.</p>
 
@@ -248,6 +270,19 @@ export function PaymentWriterDetailPage() {
         )}
       </div>
 
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Daftar Penulis</p>
+        {editMode ? (
+          <button onClick={cancelEdit} className="btn btn-ghost btn-sm">
+            Batal Edit
+          </button>
+        ) : (
+          <button onClick={() => setEditMode(true)} className="btn btn-outline btn-sm">
+            Override
+          </button>
+        )}
+      </div>
+
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
         <table className="w-full border-collapse text-sm">
           <thead className="bg-gray-50 dark:bg-white/5">
@@ -256,8 +291,12 @@ export function PaymentWriterDetailPage() {
               <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Role</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Membership</th>
               <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-gray-400">Fee</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Override Manual</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400"></th>
+              {editMode && (
+                <>
+                  <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Override Manual</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400"></th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-white/10">
@@ -268,89 +307,107 @@ export function PaymentWriterDetailPage() {
               return (
                 <tr key={w.writerId} className={willDelete ? 'opacity-40' : ''}>
                   <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <input
-                        value={w.firstName}
-                        disabled={willDelete}
-                        onChange={(e) => updateWriter(w.writerId, { firstName: e.target.value })}
-                        placeholder="Nama depan"
-                        className={`${inputCls} w-28`}
-                      />
-                      <input
-                        value={w.lastName}
-                        disabled={willDelete}
-                        onChange={(e) => updateWriter(w.writerId, { lastName: e.target.value })}
-                        placeholder="Nama belakang"
-                        className={`${inputCls} w-28`}
-                      />
-                    </div>
+                    {editMode ? (
+                      <div className="flex gap-1">
+                        <input
+                          value={w.firstName}
+                          disabled={willDelete}
+                          onChange={(e) => updateWriter(w.writerId, { firstName: e.target.value })}
+                          placeholder="Nama depan"
+                          className={`${inputCls} w-28`}
+                        />
+                        <input
+                          value={w.lastName}
+                          disabled={willDelete}
+                          onChange={(e) => updateWriter(w.writerId, { lastName: e.target.value })}
+                          placeholder="Nama belakang"
+                          className={`${inputCls} w-28`}
+                        />
+                      </div>
+                    ) : (
+                      <span className="font-medium text-gray-800 dark:text-gray-100">{w.name}</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
-                    <select
-                      value={w.role}
-                      disabled={willDelete}
-                      onChange={(e) => updateWriter(w.writerId, { role: e.target.value })}
-                      className={selectCls}
-                    >
-                      <option value="presenter">Presenter</option>
-                      <option value="participant">Participant</option>
-                    </select>
+                    {editMode ? (
+                      <select
+                        value={w.role}
+                        disabled={willDelete}
+                        onChange={(e) => updateWriter(w.writerId, { role: e.target.value })}
+                        className={selectCls}
+                      >
+                        <option value="presenter">Presenter</option>
+                        <option value="participant">Participant</option>
+                      </select>
+                    ) : (
+                      <span className="capitalize text-gray-700 dark:text-gray-200">{w.role}</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
-                    <select
-                      value={membershipChoice(w)}
-                      disabled={willDelete}
-                      onChange={(e) => onMembershipChange(w.writerId, e.target.value)}
-                      className={selectCls}
-                    >
-                      <option value="" disabled>
-                        Pilih Membership
-                      </option>
-                      <option value="member">Member</option>
-                      <option value="non_member">Non-Member</option>
-                      <option value="non_payment">Non-Payment</option>
-                      <option value="writer">Writer</option>
-                    </select>
+                    {editMode ? (
+                      <select
+                        value={membershipChoice(w)}
+                        disabled={willDelete}
+                        onChange={(e) => onMembershipChange(w.writerId, e.target.value)}
+                        className={selectCls}
+                      >
+                        <option value="" disabled>
+                          Pilih Membership
+                        </option>
+                        <option value="member">Member</option>
+                        <option value="non_member">Non-Member</option>
+                        <option value="non_payment">Non-Payment</option>
+                        <option value="writer">Writer</option>
+                      </select>
+                    ) : (
+                      <span className="text-gray-700 dark:text-gray-200">
+                        {MEMBERSHIP_LABEL[membershipChoice(w)] ?? '-'}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right text-gray-800 dark:text-gray-100">
                     {rupiah(isDraft ? Number(draft || 0) : w.fee)}
                   </td>
-                  <td className="px-4 py-3">
-                    {w.manualFee != null ? (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        🔒 Dikunci: {rupiah(w.manualFee)}
-                      </span>
-                    ) : isDraft ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={0}
-                          autoFocus
-                          value={draft}
-                          onChange={(e) => setEditingOverride((prev) => ({ ...prev, [w.writerId]: e.target.value }))}
-                          className="w-28 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
-                        />
-                        <button onClick={() => cancelOverride(w.writerId)} className="btn btn-danger-ghost btn-sm">
-                          Batal
-                        </button>
-                      </div>
-                    ) : (
-                      <button disabled={willDelete} onClick={() => startOverride(w.writerId)} className="btn btn-outline btn-sm">
-                        Override
-                      </button>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {willDelete ? (
-                      <button onClick={() => undoDelete(w.writerId)} className="btn btn-ghost btn-sm">
-                        Batal Hapus
-                      </button>
-                    ) : (
-                      <button onClick={() => markDeleted(w.writerId, w.name)} className="btn btn-danger-ghost btn-sm">
-                        Hapus
-                      </button>
-                    )}
-                  </td>
+                  {editMode && (
+                    <>
+                      <td className="px-4 py-3">
+                        {w.manualFee != null ? (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            🔒 Dikunci: {rupiah(w.manualFee)}
+                          </span>
+                        ) : isDraft ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min={0}
+                              autoFocus
+                              value={draft}
+                              onChange={(e) => setEditingOverride((prev) => ({ ...prev, [w.writerId]: e.target.value }))}
+                              className="w-28 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+                            />
+                            <button onClick={() => cancelOverride(w.writerId)} className="btn btn-danger-ghost btn-sm">
+                              Batal
+                            </button>
+                          </div>
+                        ) : (
+                          <button disabled={willDelete} onClick={() => startOverride(w.writerId)} className="btn btn-outline btn-sm">
+                            Set Fee Manual
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {willDelete ? (
+                          <button onClick={() => undoDelete(w.writerId)} className="btn btn-ghost btn-sm">
+                            Batal Hapus
+                          </button>
+                        ) : (
+                          <button onClick={() => markDeleted(w.writerId, w.name)} className="btn btn-danger-ghost btn-sm">
+                            Hapus
+                          </button>
+                        )}
+                      </td>
+                    </>
+                  )}
                 </tr>
               )
             })}
@@ -358,7 +415,7 @@ export function PaymentWriterDetailPage() {
         </table>
       </div>
 
-      {newWriterRows.length > 0 && (
+      {editMode && newWriterRows.length > 0 && (
         <div className="mt-4 space-y-3">
           {newWriterRows.map((nw) => (
             <div
@@ -434,9 +491,11 @@ export function PaymentWriterDetailPage() {
         </div>
       )}
 
-      <button onClick={addWriterDraft} className="btn btn-outline btn-sm mt-4">
-        + Tambah Penulis
-      </button>
+      {editMode && (
+        <button onClick={addWriterDraft} className="btn btn-outline btn-sm mt-4">
+          + Tambah Penulis
+        </button>
+      )}
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
         <div>
@@ -444,9 +503,11 @@ export function PaymentWriterDetailPage() {
           <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{rupiah(data.totalFee)}</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => save.mutate()} disabled={save.isPending} className="btn btn-primary">
-            {save.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
-          </button>
+          {editMode && (
+            <button onClick={() => save.mutate()} disabled={save.isPending} className="btn btn-primary">
+              {save.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </button>
+          )}
           <button
             onClick={() => sendInvoice.mutate()}
             disabled={sendInvoice.isPending || data.totalFee == null}
