@@ -8,11 +8,25 @@ import { toastSuccess, toastError } from '../lib/toast'
 interface Writer {
   writerId: string
   name: string
+  firstName: string
+  lastName: string
   role: string
   isMember: boolean | null
   paymentOverride: string | null
   manualFee: number | null
   fee: number
+}
+
+interface NewWriterDraft {
+  tempId: string
+  firstName: string
+  lastName: string
+  email: string
+  gender: 'male' | 'female' | 'other'
+  affiliation: string
+  phoneNumber: string
+  role: string
+  isMember: boolean
 }
 
 interface PaymentProof {
@@ -39,6 +53,18 @@ const isImageUrl = (url: string) => /\.(png|jpe?g|gif|webp|bmp)$/i.test(url)
 
 const rupiah = (n: number | null) => (n == null ? '-' : `Rp${n.toLocaleString('id-ID')}`)
 
+const emptyDraft = (): NewWriterDraft => ({
+  tempId: crypto.randomUUID(),
+  firstName: '',
+  lastName: '',
+  email: '',
+  gender: 'male',
+  affiliation: '',
+  phoneNumber: '',
+  role: 'presenter',
+  isMember: false,
+})
+
 // Dropdown Membership digabung jadi 1 pilihan (Member/Non-Member/Non-Payment/
 // Writer) — 2 opsi terakhir maksa fee jadi Rp 0, buat kasus di luar aturan
 // submitter-only otomatis (misal waive submitter sendiri). Mirror dari
@@ -58,6 +84,10 @@ export function PaymentWriterDetailPage() {
   // writerId yang lagi nampilin input override (belum disimpan) — dipisah
   // dari data writer sendiri biar gampang batal tanpa nyentuh state utama.
   const [editingOverride, setEditingOverride] = useState<Record<string, string>>({})
+  // Fitur "Edit Penulis" — ganti nama, tambah, hapus penulis langsung dari
+  // halaman ini (sebelumnya cuma bisa lewat DB manual).
+  const [deletedWriterIds, setDeletedWriterIds] = useState<Set<string>>(new Set())
+  const [newWriterRows, setNewWriterRows] = useState<NewWriterDraft[]>([])
 
   const { data, isLoading } = useQuery({
     queryKey: ['payment-detail', paymentId],
@@ -70,24 +100,46 @@ export function PaymentWriterDetailPage() {
   }, [data])
 
   const save = useMutation({
-    mutationFn: () =>
-      api.put(`/payment/${paymentId}/writers`, {
-        writers: writers.map((w) => ({
-          writerId: w.writerId,
-          role: w.role,
-          isMember: w.isMember ?? false,
-          paymentOverride: w.paymentOverride,
-          // Cuma dikirim kalau writer ini baru mau dikunci sekarang (draft
-          // di editingOverride) — writer yang udah punya manualFee dari
-          // server nggak perlu dikirim ulang, backend juga nolak kalau
-          // dikirim ulang.
-          manualFee: editingOverride[w.writerId] != null ? Number(editingOverride[w.writerId]) : undefined,
+    mutationFn: () => {
+      const missing = newWriterRows.find((nw) => !nw.firstName.trim() || !nw.email.trim() || !nw.affiliation.trim())
+      if (missing) {
+        throw new Error('Nama, email, dan afiliasi penulis baru wajib diisi.')
+      }
+      return api.put(`/payment/${paymentId}/writers`, {
+        writers: writers
+          .filter((w) => !deletedWriterIds.has(w.writerId))
+          .map((w) => ({
+            writerId: w.writerId,
+            firstName: w.firstName,
+            lastName: w.lastName,
+            role: w.role,
+            isMember: w.isMember ?? false,
+            paymentOverride: w.paymentOverride,
+            // Cuma dikirim kalau writer ini baru mau dikunci sekarang (draft
+            // di editingOverride) — writer yang udah punya manualFee dari
+            // server nggak perlu dikirim ulang, backend juga nolak kalau
+            // dikirim ulang.
+            manualFee: editingOverride[w.writerId] != null ? Number(editingOverride[w.writerId]) : undefined,
+          })),
+        newWriters: newWriterRows.map((nw) => ({
+          firstName: nw.firstName,
+          lastName: nw.lastName,
+          gender: nw.gender,
+          affiliation: nw.affiliation,
+          email: nw.email,
+          phoneNumber: nw.phoneNumber || undefined,
+          role: nw.role,
+          isMember: nw.isMember,
         })),
-      }),
+        deleteWriterIds: Array.from(deletedWriterIds),
+      })
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payment-detail', paymentId] })
       queryClient.invalidateQueries({ queryKey: ['payment-list'] })
       setEditingOverride({})
+      setDeletedWriterIds(new Set())
+      setNewWriterRows([])
       toastSuccess('Perubahan berhasil disimpan.')
     },
     onError: (err) => toastError(err, 'Gagal menyimpan perubahan.'),
@@ -133,8 +185,30 @@ export function PaymentWriterDetailPage() {
     })
   }
 
+  const markDeleted = (writerId: string, name: string) => {
+    if (!confirm(`Hapus "${name}" dari daftar penulis? Baru permanen setelah klik Simpan Perubahan.`)) return
+    setDeletedWriterIds((prev) => new Set(prev).add(writerId))
+  }
+
+  const undoDelete = (writerId: string) => {
+    setDeletedWriterIds((prev) => {
+      const next = new Set(prev)
+      next.delete(writerId)
+      return next
+    })
+  }
+
+  const addWriterDraft = () => setNewWriterRows((prev) => [...prev, emptyDraft()])
+  const removeWriterDraft = (tempId: string) => setNewWriterRows((prev) => prev.filter((r) => r.tempId !== tempId))
+  const updateWriterDraft = (tempId: string, patch: Partial<NewWriterDraft>) =>
+    setNewWriterRows((prev) => prev.map((r) => (r.tempId === tempId ? { ...r, ...patch } : r)))
+
   if (isLoading) return <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
   if (!data) return <p className="text-sm text-gray-500 dark:text-gray-400">Data tidak ditemukan.</p>
+
+  const inputCls =
+    'w-full rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100'
+  const selectCls = inputCls
 
   return (
     <div>
@@ -183,20 +257,40 @@ export function PaymentWriterDetailPage() {
               <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Membership</th>
               <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-gray-400">Fee</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Override Manual</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-white/10">
             {writers.map((w) => {
               const draft = editingOverride[w.writerId]
               const isDraft = draft !== undefined
+              const willDelete = deletedWriterIds.has(w.writerId)
               return (
-                <tr key={w.writerId}>
-                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{w.name}</td>
+                <tr key={w.writerId} className={willDelete ? 'opacity-40' : ''}>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <input
+                        value={w.firstName}
+                        disabled={willDelete}
+                        onChange={(e) => updateWriter(w.writerId, { firstName: e.target.value })}
+                        placeholder="Nama depan"
+                        className={`${inputCls} w-28`}
+                      />
+                      <input
+                        value={w.lastName}
+                        disabled={willDelete}
+                        onChange={(e) => updateWriter(w.writerId, { lastName: e.target.value })}
+                        placeholder="Nama belakang"
+                        className={`${inputCls} w-28`}
+                      />
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <select
                       value={w.role}
+                      disabled={willDelete}
                       onChange={(e) => updateWriter(w.writerId, { role: e.target.value })}
-                      className="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+                      className={selectCls}
                     >
                       <option value="presenter">Presenter</option>
                       <option value="participant">Participant</option>
@@ -205,8 +299,9 @@ export function PaymentWriterDetailPage() {
                   <td className="px-4 py-3">
                     <select
                       value={membershipChoice(w)}
+                      disabled={willDelete}
                       onChange={(e) => onMembershipChange(w.writerId, e.target.value)}
-                      className="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+                      className={selectCls}
                     >
                       <option value="" disabled>
                         Pilih Membership
@@ -240,8 +335,19 @@ export function PaymentWriterDetailPage() {
                         </button>
                       </div>
                     ) : (
-                      <button onClick={() => startOverride(w.writerId)} className="btn btn-outline btn-sm">
+                      <button disabled={willDelete} onClick={() => startOverride(w.writerId)} className="btn btn-outline btn-sm">
                         Override
+                      </button>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {willDelete ? (
+                      <button onClick={() => undoDelete(w.writerId)} className="btn btn-ghost btn-sm">
+                        Batal Hapus
+                      </button>
+                    ) : (
+                      <button onClick={() => markDeleted(w.writerId, w.name)} className="btn btn-danger-ghost btn-sm">
+                        Hapus
                       </button>
                     )}
                   </td>
@@ -251,6 +357,86 @@ export function PaymentWriterDetailPage() {
           </tbody>
         </table>
       </div>
+
+      {newWriterRows.length > 0 && (
+        <div className="mt-4 space-y-3">
+          {newWriterRows.map((nw) => (
+            <div
+              key={nw.tempId}
+              className="rounded-lg border border-dashed border-blue-300 bg-blue-50/50 p-4 dark:border-blue-500/30 dark:bg-blue-500/5"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">Penulis Baru</span>
+                <button onClick={() => removeWriterDraft(nw.tempId)} className="btn btn-danger-ghost btn-sm">
+                  Hapus
+                </button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <input
+                  value={nw.firstName}
+                  onChange={(e) => updateWriterDraft(nw.tempId, { firstName: e.target.value })}
+                  placeholder="Nama depan"
+                  className={inputCls}
+                />
+                <input
+                  value={nw.lastName}
+                  onChange={(e) => updateWriterDraft(nw.tempId, { lastName: e.target.value })}
+                  placeholder="Nama belakang"
+                  className={inputCls}
+                />
+                <input
+                  value={nw.email}
+                  type="email"
+                  onChange={(e) => updateWriterDraft(nw.tempId, { email: e.target.value })}
+                  placeholder="Email"
+                  className={inputCls}
+                />
+                <input
+                  value={nw.affiliation}
+                  onChange={(e) => updateWriterDraft(nw.tempId, { affiliation: e.target.value })}
+                  placeholder="Afiliasi"
+                  className={inputCls}
+                />
+                <input
+                  value={nw.phoneNumber}
+                  onChange={(e) => updateWriterDraft(nw.tempId, { phoneNumber: e.target.value })}
+                  placeholder="No. telepon (opsional)"
+                  className={inputCls}
+                />
+                <select
+                  value={nw.gender}
+                  onChange={(e) => updateWriterDraft(nw.tempId, { gender: e.target.value as NewWriterDraft['gender'] })}
+                  className={selectCls}
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                <select
+                  value={nw.role}
+                  onChange={(e) => updateWriterDraft(nw.tempId, { role: e.target.value })}
+                  className={selectCls}
+                >
+                  <option value="presenter">Presenter</option>
+                  <option value="participant">Participant</option>
+                </select>
+                <select
+                  value={nw.isMember ? 'member' : 'non_member'}
+                  onChange={(e) => updateWriterDraft(nw.tempId, { isMember: e.target.value === 'member' })}
+                  className={selectCls}
+                >
+                  <option value="member">Member</option>
+                  <option value="non_member">Non-Member</option>
+                </select>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <button onClick={addWriterDraft} className="btn btn-outline btn-sm mt-4">
+        + Tambah Penulis
+      </button>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
         <div>
