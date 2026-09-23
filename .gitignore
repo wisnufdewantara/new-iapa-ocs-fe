@@ -12,7 +12,8 @@ dist
 dist-ssr
 .env
 *.local
-SESSION_NOTES.md
+# Catatan/scratchpad markdown pribadi — standar di semua project di laptop ini
+.markdown/
 
 # Claude Code — konfigurasi personal, nggak di-share lewat git
 .claude/
