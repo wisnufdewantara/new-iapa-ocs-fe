@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import type { ColumnDef } from '@tanstack/react-table'
 import { api } from '../lib/axios'
 import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useMenu } from '../hooks/useMenu'
 import { toastSuccess, toastError } from '../lib/toast'
 
 interface Conference {
@@ -16,6 +18,7 @@ interface Paper {
   paperTitle: string
   documentUrl: string | null
   conferenceStatus: 'Waiting' | 'Accepted' | 'Rejected'
+  paymentId: string | null
   type: string | null
   subTheme: string | null
   presenterName: string | null
@@ -35,6 +38,11 @@ export function ReviewPaperPage() {
   const [conferenceId, setConferenceId] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | Paper['conferenceStatus']>('all')
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  // Link "Lihat Detail & Override" cuma masuk akal buat yang emang punya
+  // akses ke Kelola Pembayaran — Reviewer nggak punya, jadi disembunyiin
+  // daripada nampilin link yang bakal ke-block sama RouteAccessGate.
+  const { data: menu } = useMenu()
+  const canManagePayment = menu?.includes('/payment/manage') ?? false
 
   const { data: conferences } = useQuery({
     queryKey: ['conferences'],
@@ -217,6 +225,11 @@ export function ReviewPaperPage() {
         enableGlobalFilter: false,
         cell: ({ row }) => (
           <div className="flex gap-2">
+            {canManagePayment && row.original.paymentId && (
+              <Link to={`/payment/manage/${row.original.paymentId}`} className="btn btn-outline btn-sm">
+                Lihat Detail & Override
+              </Link>
+            )}
             <button
               disabled={row.original.conferenceStatus === 'Accepted' || statusMutation.isPending}
               onClick={() => decideWithFeedback(row.original.paperId, 'Accepted')}
@@ -244,7 +257,7 @@ export function ReviewPaperPage() {
         ),
       },
     ],
-    [statusMutation, handleCancelDecision, decideWithFeedback, selected, allFilteredSelected],
+    [statusMutation, handleCancelDecision, decideWithFeedback, selected, allFilteredSelected, canManagePayment],
   )
 
   return (
