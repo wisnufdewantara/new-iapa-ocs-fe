@@ -14,6 +14,9 @@ dist-ssr
 *.local
 SESSION_NOTES.md
 
+# Claude Code personal override — settings.json (shared team policy) tetap di-commit
+.claude/settings.local.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
