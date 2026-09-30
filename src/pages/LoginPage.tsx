@@ -53,7 +53,12 @@ export function LoginPage() {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+          <div className="mb-1 flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+            <Link to="/forgot-password" className="text-xs font-medium text-brand-navy hover:underline dark:text-brand-orange">
+              Lupa password?
+            </Link>
+          </div>
           <input
             type="password"
             className="mb-6 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
