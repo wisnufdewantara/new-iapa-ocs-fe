@@ -1,4 +1,4 @@
-import type { FontOption, PlaceholderDraft, PlaceholderVariable, TemplateDraft } from './types'
+import type { FontOption, PlaceholderDraft, PlaceholderType, PlaceholderVariable, TemplateDraft } from './types'
 
 const inputClass =
   'w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100'
@@ -6,8 +6,15 @@ const labelClass = 'mb-1 block text-sm font-medium text-gray-700 dark:text-gray-
 
 const MAX_PLACEHOLDERS = 10
 
+const TYPE_LABELS: Record<PlaceholderType, string> = {
+  name: 'Nama Penerima',
+  cert_type: 'Label Tipe (mis. "Presenter")',
+  custom: 'Custom Teks',
+}
+
 const emptyPlaceholder = (slot: number): PlaceholderDraft => ({
   slot,
+  type: 'custom',
   content: '',
   fontKey: 'cardo_regular',
   fontSize: 0.025,
@@ -24,6 +31,9 @@ interface Props {
   onChange: (patch: Partial<TemplateDraft>) => void
 }
 
+// Satu list buat SEMUA placeholder teks — Nama Penerima & Label Tipe
+// (type='name'/'cert_type', kontennya otomatis dari data recipient) dan
+// Custom Teks (type='custom', kontennya diisi manual, boleh {{variabel}}).
 export function PlaceholderInspector({ draft, fonts, variables, onChange }: Props) {
   const addPlaceholder = () => {
     const used = new Set(draft.placeholders.map((p) => p.slot))
@@ -43,8 +53,8 @@ export function PlaceholderInspector({ draft, fonts, variables, onChange }: Prop
   return (
     <div className="flex flex-col gap-4">
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        Teks manual tambahan (maks {MAX_PLACEHOLDERS}) — di luar Nama Penerima &amp; Label. Isinya SAMA buat semua
-        penerima dalam satu template, tapi bisa diselingi variabel:{' '}
+        Placeholder teks di atas desain (maks {MAX_PLACEHOLDERS}) — pilih jenisnya. "Nama Penerima" &amp; "Label Tipe"
+        otomatis keisi dari data, "Custom Teks" diisi manual, bisa diselingi variabel:{' '}
         {variables.map((v) => (
           <code key={v.key} className="mr-1 rounded bg-gray-100 px-1 dark:bg-white/10">{`{{${v.key}}}`}</code>
         ))}
@@ -53,19 +63,36 @@ export function PlaceholderInspector({ draft, fonts, variables, onChange }: Prop
       {draft.placeholders.map((p) => (
         <div key={p.slot} className="rounded-md border border-gray-200 p-3 dark:border-white/10">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Teks {p.slot}</span>
+            <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Placeholder {p.slot}</span>
             <button onClick={() => removePlaceholder(p.slot)} className="btn-danger-ghost text-xs">
               Hapus
             </button>
           </div>
 
-          <label className={labelClass}>Isi</label>
-          <textarea
-            rows={2}
+          <label className={labelClass}>Jenis</label>
+          <select
             className={inputClass}
-            value={p.content}
-            onChange={(e) => updatePlaceholder(p.slot, { content: e.target.value })}
-          />
+            value={p.type}
+            onChange={(e) => updatePlaceholder(p.slot, { type: e.target.value as PlaceholderType })}
+          >
+            {(Object.keys(TYPE_LABELS) as PlaceholderType[]).map((t) => (
+              <option key={t} value={t}>
+                {TYPE_LABELS[t]}
+              </option>
+            ))}
+          </select>
+
+          {p.type === 'custom' && (
+            <>
+              <label className={`${labelClass} mt-2`}>Isi</label>
+              <textarea
+                rows={2}
+                className={inputClass}
+                value={p.content}
+                onChange={(e) => updatePlaceholder(p.slot, { content: e.target.value })}
+              />
+            </>
+          )}
 
           <label className={`${labelClass} mt-2`}>Font</label>
           <select className={inputClass} value={p.fontKey} onChange={(e) => updatePlaceholder(p.slot, { fontKey: e.target.value })}>
@@ -95,7 +122,7 @@ export function PlaceholderInspector({ draft, fonts, variables, onChange }: Prop
             className="h-9 w-16 rounded border border-gray-300 dark:border-white/15"
           />
 
-          <label className={`${labelClass} mt-2`}>Lebar Maksimal (buat word-wrap)</label>
+          <label className={`${labelClass} mt-2`}>Lebar Maksimal (auto-shrink buat Nama/Label, word-wrap buat Custom)</label>
           <input
             type="range"
             min={0.1}
@@ -110,7 +137,7 @@ export function PlaceholderInspector({ draft, fonts, variables, onChange }: Prop
 
       {draft.placeholders.length < MAX_PLACEHOLDERS && (
         <button onClick={addPlaceholder} className="btn btn-outline">
-          + Tambah Teks ({draft.placeholders.length}/{MAX_PLACEHOLDERS})
+          + Tambah Placeholder ({draft.placeholders.length}/{MAX_PLACEHOLDERS})
         </button>
       )}
     </div>

@@ -5,7 +5,6 @@ import { api } from '../lib/axios'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { toastError, toastSuccess } from '../lib/toast'
 import { DesignCanvas } from '../components/certificate-editor/DesignCanvas'
-import { NameInspector } from '../components/certificate-editor/NameInspector'
 import { SignerInspector } from '../components/certificate-editor/SignerInspector'
 import { QrInspector } from '../components/certificate-editor/QrInspector'
 import { Page2Editor } from '../components/certificate-editor/Page2Editor'
@@ -100,9 +99,7 @@ export function CertificateTemplateEditorPage() {
   const updateDraft = (patch: Partial<TemplateDraft>) => setDraft({ ...draft, ...patch })
 
   const onMove = (elId: ElementId, pos: { x: number; y: number }) => {
-    if (elId === 'name') updateDraft({ namePosX: pos.x, namePosY: pos.y })
-    else if (elId === 'label') updateDraft({ labelPosX: pos.x, labelPosY: pos.y })
-    else if (elId === 'qr') updateDraft({ qrPosX: pos.x, qrPosY: pos.y })
+    if (elId === 'qr') updateDraft({ qrPosX: pos.x, qrPosY: pos.y })
     else if (elId.startsWith('placeholder-')) {
       const slot = Number(elId.replace('placeholder-', ''))
       updateDraft({ placeholders: draft.placeholders.map((p) => (p.slot === slot ? { ...p, posX: pos.x, posY: pos.y } : p)) })
@@ -197,7 +194,14 @@ export function CertificateTemplateEditorPage() {
 
           {tab === 'elemen' && (
             <>
-              <NameInspector draft={draft} fonts={fonts ?? []} sampleName={sampleName} onSampleNameChange={setSampleName} onChange={updateDraft} />
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Sample (preview saja)</label>
+                <input
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+                  value={sampleName}
+                  onChange={(e) => setSampleName(e.target.value)}
+                />
+              </div>
               <div className="mt-6 border-t border-gray-200 pt-4 dark:border-white/10">
                 <QrInspector draft={draft} onChange={updateDraft} />
               </div>

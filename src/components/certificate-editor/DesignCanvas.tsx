@@ -46,65 +46,10 @@ export function DesignCanvas({ draft, selectedId, onSelect, onMove, sampleName, 
       {snapGuides.x && <div className="pointer-events-none absolute inset-y-0 left-1/2 w-px bg-brand-orange/70" />}
       {snapGuides.y && <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-brand-orange/70" />}
 
-      <DraggableItem
-        id="name"
-        pos={{ x: draft.namePosX, y: draft.namePosY }}
-        selected={selectedId === 'name'}
-        onSelect={() => onSelect('name')}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onKeyDown={onKeyDown}
-      >
-        <div className="relative">
-          {selectedId === 'name' && (
-            <div
-              className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-dashed border-brand-orange/60"
-              style={{ width: `${draft.nameMaxWidth * 100}%`, height: '1px' }}
-            />
-          )}
-          <span
-            style={{
-              fontFamily: `cert-${draft.nameFontKey}`,
-              fontSize: draft.nameFontSize * (canvasRef.current?.clientHeight ?? 400),
-              color: draft.nameColor,
-              lineHeight: 1,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {sampleName}
-          </span>
-        </div>
-      </DraggableItem>
-
-      {draft.labelEnabled && (
-        <DraggableItem
-          id="label"
-          pos={{ x: draft.labelPosX, y: draft.labelPosY }}
-          selected={selectedId === 'label'}
-          onSelect={() => onSelect('label')}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onKeyDown={onKeyDown}
-        >
-          <span
-            style={{
-              fontFamily: `cert-${draft.bodyFontKey}`,
-              fontSize: draft.labelFontSize * (canvasRef.current?.clientHeight ?? 400),
-              color: draft.nameColor,
-              lineHeight: 1,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Presenter
-          </span>
-        </DraggableItem>
-      )}
-
       {draft.placeholders.map((p) => {
         const id = `placeholder-${p.slot}` as ElementId
-        const preview = interpolatePreview(p.content, sampleName)
+        const isSingleLine = p.type === 'name' || p.type === 'cert_type'
+        const preview = isSingleLine ? (p.type === 'name' ? sampleName : 'Presenter') : interpolatePreview(p.content, sampleName)
         return (
           <DraggableItem
             key={id}
@@ -117,19 +62,41 @@ export function DesignCanvas({ draft, selectedId, onSelect, onMove, sampleName, 
             onPointerUp={onPointerUp}
             onKeyDown={onKeyDown}
           >
-            <span
-              className="inline-block text-center"
-              style={{
-                fontFamily: `cert-${p.fontKey}`,
-                fontSize: p.fontSize * (canvasRef.current?.clientHeight ?? 400),
-                color: p.color,
-                lineHeight: 1.3,
-                width: `${p.maxWidth * (canvasRef.current?.clientWidth ?? 900)}px`,
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {preview || `(Teks ${p.slot} kosong)`}
-            </span>
+            {isSingleLine ? (
+              <div className="relative">
+                {selectedId === id && (
+                  <div
+                    className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-dashed border-brand-orange/60"
+                    style={{ width: `${p.maxWidth * 100}%`, height: '1px' }}
+                  />
+                )}
+                <span
+                  style={{
+                    fontFamily: `cert-${p.fontKey}`,
+                    fontSize: p.fontSize * (canvasRef.current?.clientHeight ?? 400),
+                    color: p.color,
+                    lineHeight: 1,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {preview}
+                </span>
+              </div>
+            ) : (
+              <span
+                className="inline-block text-center"
+                style={{
+                  fontFamily: `cert-${p.fontKey}`,
+                  fontSize: p.fontSize * (canvasRef.current?.clientHeight ?? 400),
+                  color: p.color,
+                  lineHeight: 1.3,
+                  width: `${p.maxWidth * (canvasRef.current?.clientWidth ?? 900)}px`,
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {preview || `(Placeholder ${p.slot} kosong)`}
+              </span>
+            )}
           </DraggableItem>
         )
       })}

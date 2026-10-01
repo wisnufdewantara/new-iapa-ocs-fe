@@ -1,4 +1,4 @@
-export type ElementId = 'name' | 'label' | 'qr' | 'signer-1' | 'signer-2' | 'signer-3' | `placeholder-${number}`
+export type ElementId = 'qr' | 'signer-1' | 'signer-2' | 'signer-3' | `placeholder-${number}`
 
 export interface SignerDraft {
   slot: number
@@ -12,11 +12,15 @@ export interface SignerDraft {
   width: number
 }
 
-// Teks manual tambahan (maks 10 slot) — content boleh diselingi
-// {{variabel}}, lihat PlaceholderVariable di bawah buat daftar yang
-// tersedia (sama persis dengan backend certificate-placeholder-variables.constant.ts).
+export type PlaceholderType = 'name' | 'cert_type' | 'custom'
+
+// Nama Penerima & Label Tipe BUKAN field khusus lagi — satu list dengan
+// teks custom, dibedain lewat `type`. 'name'/'cert_type' render otomatis
+// dari data recipient (content diabaikan backend); 'custom' render dari
+// `content`, boleh diselingi {{variabel}} (lihat PlaceholderVariable).
 export interface PlaceholderDraft {
   slot: number
+  type: PlaceholderType
   content: string
   fontKey: string
   fontSize: number
@@ -42,16 +46,6 @@ export interface TemplateDraft {
   designWidthPx: number
   designHeightPx: number
   isDefault: boolean
-  nameFontKey: string
-  nameFontSize: number
-  nameColor: string
-  namePosX: number
-  namePosY: number
-  nameMaxWidth: number
-  labelEnabled: boolean
-  labelFontSize: number
-  labelPosX: number
-  labelPosY: number
   bodyFontKey: string
   signerFontSize: number
   signerColor: string
