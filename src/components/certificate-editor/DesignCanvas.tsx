@@ -4,6 +4,20 @@ import type { ElementId, TemplateDraft } from './types'
 
 const apiOrigin = (import.meta.env.VITE_API_URL ?? '').replace(/\/api$/, '')
 
+// Preview kasar di editor — sample value SAMA pola kayak sample variables
+// di backend (certificate-templates.controller.ts preview()), biar admin
+// kebayang isinya sebelum Preview PDF beneran.
+const PREVIEW_VARIABLES: Record<string, string> = {
+  conferenceName: 'Nama Conference Contoh',
+  paperTitle: 'Judul Paper Contoh',
+  eventDate: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+  certType: 'Presenter',
+}
+
+function interpolatePreview(content: string, sampleName?: string): string {
+  return content.replace(/\{\{(\w+)\}\}/g, (_, k) => (k === 'name' ? (sampleName ?? '') : (PREVIEW_VARIABLES[k] ?? '')))
+}
+
 interface Props {
   draft: TemplateDraft
   selectedId: ElementId | null
@@ -87,6 +101,38 @@ export function DesignCanvas({ draft, selectedId, onSelect, onMove, sampleName, 
           </span>
         </DraggableItem>
       )}
+
+      {draft.placeholders.map((p) => {
+        const id = `placeholder-${p.slot}` as ElementId
+        const preview = interpolatePreview(p.content, sampleName)
+        return (
+          <DraggableItem
+            key={id}
+            id={id}
+            pos={{ x: p.posX, y: p.posY }}
+            selected={selectedId === id}
+            onSelect={() => onSelect(id)}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onKeyDown={onKeyDown}
+          >
+            <span
+              className="inline-block text-center"
+              style={{
+                fontFamily: `cert-${p.fontKey}`,
+                fontSize: p.fontSize * (canvasRef.current?.clientHeight ?? 400),
+                color: p.color,
+                lineHeight: 1.3,
+                width: `${p.maxWidth * (canvasRef.current?.clientWidth ?? 900)}px`,
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {preview || `(Teks ${p.slot} kosong)`}
+            </span>
+          </DraggableItem>
+        )
+      })}
 
       {draft.signers.map((s) => {
         const id = `signer-${s.slot}` as ElementId

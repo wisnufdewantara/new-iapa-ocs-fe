@@ -9,9 +9,10 @@ import { NameInspector } from '../components/certificate-editor/NameInspector'
 import { SignerInspector } from '../components/certificate-editor/SignerInspector'
 import { QrInspector } from '../components/certificate-editor/QrInspector'
 import { Page2Editor } from '../components/certificate-editor/Page2Editor'
-import type { ElementId, FontOption, SignerDraft, TemplateDraft } from '../components/certificate-editor/types'
+import { PlaceholderInspector } from '../components/certificate-editor/PlaceholderInspector'
+import type { ElementId, FontOption, PlaceholderVariable, SignerDraft, TemplateDraft } from '../components/certificate-editor/types'
 
-type Tab = 'elemen' | 'signer' | 'page2'
+type Tab = 'elemen' | 'placeholder' | 'signer' | 'page2'
 
 export function CertificateTemplateEditorPage() {
   const { id } = useParams<{ id: string }>()
@@ -33,6 +34,11 @@ export function CertificateTemplateEditorPage() {
   const { data: fonts } = useQuery({
     queryKey: ['certificate-fonts'],
     queryFn: async () => (await api.get<FontOption[]>('/certificate-templates/fonts')).data,
+  })
+
+  const { data: placeholderVariables } = useQuery({
+    queryKey: ['certificate-placeholder-variables'],
+    queryFn: async () => (await api.get<PlaceholderVariable[]>('/certificate-templates/placeholder-variables')).data,
   })
 
   usePageTitle(template ? `Edit Template: ${template.name}` : 'Edit Template Sertifikat')
@@ -97,7 +103,10 @@ export function CertificateTemplateEditorPage() {
     if (elId === 'name') updateDraft({ namePosX: pos.x, namePosY: pos.y })
     else if (elId === 'label') updateDraft({ labelPosX: pos.x, labelPosY: pos.y })
     else if (elId === 'qr') updateDraft({ qrPosX: pos.x, qrPosY: pos.y })
-    else {
+    else if (elId.startsWith('placeholder-')) {
+      const slot = Number(elId.replace('placeholder-', ''))
+      updateDraft({ placeholders: draft.placeholders.map((p) => (p.slot === slot ? { ...p, posX: pos.x, posY: pos.y } : p)) })
+    } else {
       const slot = Number(elId.replace('signer-', ''))
       updateDraft({ signers: draft.signers.map((s) => (s.slot === slot ? { ...s, posX: pos.x, posY: pos.y } : s)) })
     }
@@ -172,8 +181,8 @@ export function CertificateTemplateEditorPage() {
         </div>
 
         <div className="w-full shrink-0 lg:w-80">
-          <div className="mb-3 flex gap-1 rounded-md bg-gray-100 p-1 text-sm dark:bg-white/5">
-            {(['elemen', 'signer', 'page2'] as Tab[]).map((t) => (
+          <div className="mb-3 flex flex-wrap gap-1 rounded-md bg-gray-100 p-1 text-sm dark:bg-white/5">
+            {(['elemen', 'placeholder', 'signer', 'page2'] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -181,7 +190,7 @@ export function CertificateTemplateEditorPage() {
                   tab === t ? 'bg-white text-brand-navy shadow-sm dark:bg-brand-dark-surface dark:text-brand-orange' : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
-                {t === 'elemen' ? 'Elemen' : t === 'signer' ? 'Tanda Tangan' : 'Halaman 2'}
+                {t === 'elemen' ? 'Elemen' : t === 'placeholder' ? 'Teks Tambahan' : t === 'signer' ? 'Tanda Tangan' : 'Halaman 2'}
               </button>
             ))}
           </div>
@@ -193,6 +202,9 @@ export function CertificateTemplateEditorPage() {
                 <QrInspector draft={draft} onChange={updateDraft} />
               </div>
             </>
+          )}
+          {tab === 'placeholder' && (
+            <PlaceholderInspector draft={draft} fonts={fonts ?? []} variables={placeholderVariables ?? []} onChange={updateDraft} />
           )}
           {tab === 'signer' && id && (
             <SignerInspector templateId={id} draft={draft} onChange={updateDraft} onSignerSynced={onSignerSynced} />

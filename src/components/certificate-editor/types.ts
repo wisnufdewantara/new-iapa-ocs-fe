@@ -1,4 +1,4 @@
-export type ElementId = 'name' | 'label' | 'qr' | 'signer-1' | 'signer-2' | 'signer-3'
+export type ElementId = 'name' | 'label' | 'qr' | 'signer-1' | 'signer-2' | 'signer-3' | `placeholder-${number}`
 
 export interface SignerDraft {
   slot: number
@@ -10,6 +10,25 @@ export interface SignerDraft {
   posX: number
   posY: number
   width: number
+}
+
+// Teks manual tambahan (maks 10 slot) — content boleh diselingi
+// {{variabel}}, lihat PlaceholderVariable di bawah buat daftar yang
+// tersedia (sama persis dengan backend certificate-placeholder-variables.constant.ts).
+export interface PlaceholderDraft {
+  slot: number
+  content: string
+  fontKey: string
+  fontSize: number
+  color: string
+  posX: number
+  posY: number
+  maxWidth: number
+}
+
+export interface PlaceholderVariable {
+  key: string
+  label: string
 }
 
 // Mirror camelCase dari response GET/PATCH /api/certificate-templates/:id —
@@ -47,6 +66,7 @@ export interface TemplateDraft {
   qrSize: number
   updatedAt: string
   signers: SignerDraft[]
+  placeholders: PlaceholderDraft[]
 }
 
 export interface FontOption {
