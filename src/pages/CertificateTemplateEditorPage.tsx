@@ -12,7 +12,7 @@ import { Page2Editor } from '../components/certificate-editor/Page2Editor'
 import { PlaceholderInspector } from '../components/certificate-editor/PlaceholderInspector'
 import type { ElementId, FontOption, PlaceholderVariable, SignerDraft, TemplateDraft } from '../components/certificate-editor/types'
 
-type Tab = 'elemen' | 'placeholder' | 'signer' | 'page2'
+type Tab = 'elemen' | 'signer' | 'page2'
 
 export function CertificateTemplateEditorPage() {
   const { id } = useParams<{ id: string }>()
@@ -182,7 +182,7 @@ export function CertificateTemplateEditorPage() {
 
         <div className="w-full shrink-0 lg:w-80">
           <div className="mb-3 flex flex-wrap gap-1 rounded-md bg-gray-100 p-1 text-sm dark:bg-white/5">
-            {(['elemen', 'placeholder', 'signer', 'page2'] as Tab[]).map((t) => (
+            {(['elemen', 'signer', 'page2'] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -190,7 +190,7 @@ export function CertificateTemplateEditorPage() {
                   tab === t ? 'bg-white text-brand-navy shadow-sm dark:bg-brand-dark-surface dark:text-brand-orange' : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
-                {t === 'elemen' ? 'Elemen' : t === 'placeholder' ? 'Teks Tambahan' : t === 'signer' ? 'Tanda Tangan' : 'Halaman 2'}
+                {t === 'elemen' ? 'Elemen' : t === 'signer' ? 'Tanda Tangan' : 'Halaman 2'}
               </button>
             ))}
           </div>
@@ -201,10 +201,10 @@ export function CertificateTemplateEditorPage() {
               <div className="mt-6 border-t border-gray-200 pt-4 dark:border-white/10">
                 <QrInspector draft={draft} onChange={updateDraft} />
               </div>
+              <div className="mt-6 border-t border-gray-200 pt-4 dark:border-white/10">
+                <PlaceholderInspector draft={draft} fonts={fonts ?? []} variables={placeholderVariables ?? []} onChange={updateDraft} />
+              </div>
             </>
-          )}
-          {tab === 'placeholder' && (
-            <PlaceholderInspector draft={draft} fonts={fonts ?? []} variables={placeholderVariables ?? []} onChange={updateDraft} />
           )}
           {tab === 'signer' && id && (
             <SignerInspector templateId={id} draft={draft} onChange={updateDraft} onSignerSynced={onSignerSynced} />
