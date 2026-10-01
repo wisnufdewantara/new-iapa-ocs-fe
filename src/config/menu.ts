@@ -48,7 +48,10 @@ export const MENU: MenuGroup[] = [
   },
   {
     group: 'Sertifikat',
-    items: [{ label: 'Kelola Sertifikat', path: '/certificates' }],
+    items: [
+      { label: 'Kelola Sertifikat (Old)', path: '/certificates' },
+      { label: 'Pengaturan Sertifikat (New)', path: '/certificate-templates' },
+    ],
   },
   {
     group: 'Pembayaran',

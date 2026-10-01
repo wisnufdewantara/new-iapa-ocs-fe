@@ -135,3 +135,32 @@
 .animate-fade-slide-up {
   animation: fade-slide-up 0.6s ease-out both;
 }
+
+/* Font buat editor template sertifikat (src/components/certificate-editor/)
+   — key di sini WAJIB sama persis dengan CERTIFICATE_FONTS di backend
+   (certificate-fonts.constant.ts), biar preview editor match hasil PDF. */
+@font-face {
+  font-family: 'cert-spectral_semibold';
+  src: url('/fonts/certificate/Spectral-SemiBold.ttf') format('truetype');
+  font-display: block;
+}
+@font-face {
+  font-family: 'cert-crimson_semibold';
+  src: url('/fonts/certificate/CrimsonText-SemiBold.ttf') format('truetype');
+  font-display: block;
+}
+@font-face {
+  font-family: 'cert-cardo_regular';
+  src: url('/fonts/certificate/Cardo-Regular.ttf') format('truetype');
+  font-display: block;
+}
+@font-face {
+  font-family: 'cert-great_vibes';
+  src: url('/fonts/certificate/GreatVibes-Regular.ttf') format('truetype');
+  font-display: block;
+}
+@font-face {
+  font-family: 'cert-tangerine_bold';
+  src: url('/fonts/certificate/Tangerine-Bold.ttf') format('truetype');
+  font-display: block;
+}

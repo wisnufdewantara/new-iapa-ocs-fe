@@ -26,6 +26,9 @@ import { UserDetailPage } from './pages/admin/UserDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { GenerateLoaPage } from './pages/GenerateLoaPage'
 import { CertificateManagementPage } from './pages/CertificateManagementPage'
+import { CertificateTemplatesPage } from './pages/CertificateTemplatesPage'
+import { CertificateTemplateEditorPage } from './pages/CertificateTemplateEditorPage'
+import { CertificateValidationPage } from './pages/CertificateValidationPage'
 import { PaymentPage } from './pages/PaymentPage'
 import { PaymentManagementPage } from './pages/PaymentManagementPage'
 import { PaymentWriterDetailPage } from './pages/PaymentWriterDetailPage'
@@ -50,6 +53,7 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/papers/loa': <GenerateLoaPage />,
   '/join': <JoinConferencePage />,
   '/certificates': <CertificateManagementPage />,
+  '/certificate-templates': <CertificateTemplatesPage />,
   '/payment': <PaymentPage />,
   '/payment/manage': <PaymentManagementPage />,
   '/admin/settings': <SettingsPage />,
@@ -76,6 +80,10 @@ const adminRoutes = allPaths
 // di Kelola Pembayaran, bukan sidebar) — sama pola-nya kayak /admin/users/:id.
 const paymentDetailRoute = { path: '/payment/manage/:paymentId', element: <PaymentWriterDetailPage /> }
 
+// /certificate-templates/:id bukan item menu (diakses lewat link "Edit" di
+// grid template, bukan sidebar) — sama pola-nya kayak /payment/manage/:paymentId.
+const certTemplateEditorRoute = { path: '/certificate-templates/:id', element: <CertificateTemplateEditorPage /> }
+
 // /changelog bukan item MENU per-role (link tetap di footer Sidebar buat
 // semua orang) — lihat pengecualian di RouteAccessGate.
 const changelogRoute = { path: '/changelog', element: <ChangelogPage /> }
@@ -83,7 +91,7 @@ const changelogRoute = { path: '/changelog', element: <ChangelogPage /> }
 const domainRoutes = allPaths
   .filter((path) => !path.startsWith('/admin'))
   .map((path) => ({ path, element: builtRoutes[path] ?? <ComingSoonPage /> }))
-  .concat([paymentDetailRoute, changelogRoute])
+  .concat([paymentDetailRoute, certTemplateEditorRoute, changelogRoute])
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
@@ -94,6 +102,7 @@ export const router = createBrowserRouter([
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/functional-test', element: <FunctionalTestPage /> },
+  { path: '/certificate-validation/:code', element: <CertificateValidationPage /> },
   {
     element: <ProtectedRoute />,
     children: [
