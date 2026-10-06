@@ -222,6 +222,9 @@ export function PaymentManagementPage() {
         enableGlobalFilter: false,
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-3">
+            <Link to={`/payment/manage/participant/${row.original.attendanceId}`} className="btn btn-outline btn-sm">
+              Lihat Detail
+            </Link>
             {row.original.status === 'verified' ? (
               <span className="text-xs font-medium text-green-600 dark:text-green-400">✓ Sudah diverifikasi</span>
             ) : row.original.status === 'rejected' ? (

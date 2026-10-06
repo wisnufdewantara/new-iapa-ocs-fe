@@ -33,6 +33,7 @@ import { CertificateValidationPage } from './pages/CertificateValidationPage'
 import { PaymentPage } from './pages/PaymentPage'
 import { PaymentManagementPage } from './pages/PaymentManagementPage'
 import { PaymentWriterDetailPage } from './pages/PaymentWriterDetailPage'
+import { ParticipantPaymentDetailPage } from './pages/ParticipantPaymentDetailPage'
 import { JoinConferencePage } from './pages/JoinConferencePage'
 import { ReportPage } from './pages/ReportPage'
 import { GuidePage } from './pages/GuidePage'
@@ -84,6 +85,13 @@ const adminRoutes = allPaths
 // di Kelola Pembayaran, bukan sidebar) — sama pola-nya kayak /admin/users/:id.
 const paymentDetailRoute = { path: '/payment/manage/:paymentId', element: <PaymentWriterDetailPage /> }
 
+// /payment/manage/participant/:attendanceId — sama pola-nya, tapi buat tab
+// Peserta (lihat detail + override nominal/membership satu orang).
+const participantPaymentDetailRoute = {
+  path: '/payment/manage/participant/:attendanceId',
+  element: <ParticipantPaymentDetailPage />,
+}
+
 // /certificate-templates/:id bukan item menu (diakses lewat link "Edit" di
 // grid template, bukan sidebar) — sama pola-nya kayak /payment/manage/:paymentId.
 const certTemplateEditorRoute = { path: '/certificate-templates/:id', element: <CertificateTemplateEditorPage /> }
@@ -95,7 +103,7 @@ const changelogRoute = { path: '/changelog', element: <ChangelogPage /> }
 const domainRoutes = allPaths
   .filter((path) => !path.startsWith('/admin'))
   .map((path) => ({ path, element: builtRoutes[path] ?? <ComingSoonPage /> }))
-  .concat([paymentDetailRoute, certTemplateEditorRoute, changelogRoute])
+  .concat([paymentDetailRoute, participantPaymentDetailRoute, certTemplateEditorRoute, changelogRoute])
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
