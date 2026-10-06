@@ -61,6 +61,10 @@ export const MENU: MenuGroup[] = [
     ],
   },
   {
+    group: 'Laporan',
+    items: [{ label: 'Download Laporan', path: '/report' }],
+  },
+  {
     group: 'Admin',
     items: [
       { label: 'Kelola Role', path: '/admin/roles' },
@@ -70,6 +74,9 @@ export const MENU: MenuGroup[] = [
   },
   {
     group: 'Developer',
-    items: [{ label: 'Dashboard Developer', path: '/admin/developer' }],
+    items: [
+      { label: 'Dashboard Developer', path: '/admin/developer' },
+      { label: 'Mail Log Monitoring', path: '/admin/mail-log' },
+    ],
   },
 ]

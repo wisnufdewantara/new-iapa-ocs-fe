@@ -120,6 +120,22 @@ export function PaymentManagementPage() {
     onError: (err) => toastError(err, 'Gagal mengirim invoice.'),
   })
 
+  const sendReceiptTeam = useMutation({
+    mutationFn: (paymentId: string) => api.post(`/payment/${paymentId}/send-receipt`),
+    onSuccess: () => {
+      toastSuccess('Kwitansi berhasil dikirim.')
+    },
+    onError: (err) => toastError(err, 'Gagal mengirim kwitansi.'),
+  })
+
+  const sendReceiptParticipant = useMutation({
+    mutationFn: (attendanceId: string) => api.post(`/payment/participant/${attendanceId}/send-receipt`),
+    onSuccess: () => {
+      toastSuccess('Kwitansi berhasil dikirim.')
+    },
+    onError: (err) => toastError(err, 'Gagal mengirim kwitansi.'),
+  })
+
   const updateUniqueCode = useMutation({
     mutationFn: ({ id, uniqueCode }: { id: string; uniqueCode: string }) =>
       api.put(`/payment-types/${id}`, { uniqueCode }),
@@ -179,14 +195,20 @@ export function PaymentManagementPage() {
               // kepencet nge-verify pembayaran yang belum beneran masuk.
               <span className="text-xs italic text-gray-400 dark:text-gray-500">Belum ada bukti transfer</span>
             )}
-            <button onClick={() => sendInvoiceTeam.mutate(row.original.paymentId)} className="btn btn-ghost btn-sm">
-              {row.original.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
-            </button>
+            {row.original.status === 'verified' ? (
+              <button onClick={() => sendReceiptTeam.mutate(row.original.paymentId)} className="btn btn-ghost btn-sm">
+                Kirim Kwitansi
+              </button>
+            ) : (
+              <button onClick={() => sendInvoiceTeam.mutate(row.original.paymentId)} className="btn btn-ghost btn-sm">
+                {row.original.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
+              </button>
+            )}
           </div>
         ),
       },
     ],
-    [verifyTeam, sendInvoiceTeam],
+    [verifyTeam, sendInvoiceTeam, sendReceiptTeam],
   )
 
   const participantColumns = useMemo<ColumnDef<ParticipantRow, any>[]>(
@@ -224,17 +246,26 @@ export function PaymentManagementPage() {
                 </button>
               </>
             )}
-            <button
-              onClick={() => sendInvoiceParticipant.mutate(row.original.attendanceId)}
-              className="btn btn-ghost btn-sm"
-            >
-              {row.original.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
-            </button>
+            {row.original.status === 'verified' ? (
+              <button
+                onClick={() => sendReceiptParticipant.mutate(row.original.attendanceId)}
+                className="btn btn-ghost btn-sm"
+              >
+                Kirim Kwitansi
+              </button>
+            ) : (
+              <button
+                onClick={() => sendInvoiceParticipant.mutate(row.original.attendanceId)}
+                className="btn btn-ghost btn-sm"
+              >
+                {row.original.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
+              </button>
+            )}
           </div>
         ),
       },
     ],
-    [verifyParticipant, sendInvoiceParticipant],
+    [verifyParticipant, sendInvoiceParticipant, sendReceiptParticipant],
   )
 
   return (

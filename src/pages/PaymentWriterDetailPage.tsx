@@ -165,6 +165,15 @@ export function PaymentWriterDetailPage() {
     onError: (err) => toastError(err, 'Gagal mengirim invoice.'),
   })
 
+  const sendReceipt = useMutation({
+    mutationFn: () => api.post(`/payment/${paymentId}/send-receipt`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payment-detail', paymentId] })
+      toastSuccess('Kwitansi berhasil dikirim.')
+    },
+    onError: (err) => toastError(err, 'Gagal mengirim kwitansi.'),
+  })
+
   const updateWriter = (writerId: string, patch: Partial<Writer>) => {
     setWriters((prev) => prev.map((w) => (w.writerId === writerId ? { ...w, ...patch } : w)))
   }
@@ -501,6 +510,25 @@ export function PaymentWriterDetailPage() {
         <div>
           <p className="text-xs text-gray-500 dark:text-gray-400">Total Pembayaran</p>
           <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{rupiah(data.totalFee)}</p>
+          <div className="mt-2">
+            {data.paymentStatus === 'verified' ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                &#x2713; Terverifikasi
+              </span>
+            ) : data.paymentStatus === 'rejected' ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                &#x2717; Ditolak
+              </span>
+            ) : data.paymentStatus === 'pending' ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
+                &#x23f3; Menunggu Verifikasi
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                &#x2014; Belum Ada Pembayaran
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex gap-3">
           {editMode && (
@@ -508,13 +536,23 @@ export function PaymentWriterDetailPage() {
               {save.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
           )}
-          <button
-            onClick={() => sendInvoice.mutate()}
-            disabled={sendInvoice.isPending || data.totalFee == null}
-            className="btn btn-outline"
-          >
-            {data.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
-          </button>
+          {data.paymentStatus === 'verified' ? (
+            <button
+              onClick={() => sendReceipt.mutate()}
+              disabled={sendReceipt.isPending}
+              className="btn btn-outline"
+            >
+              {sendReceipt.isPending ? 'Mengirim...' : 'Kirim Kwitansi'}
+            </button>
+          ) : (
+            <button
+              onClick={() => sendInvoice.mutate()}
+              disabled={sendInvoice.isPending || data.totalFee == null}
+              className="btn btn-outline"
+            >
+              {data.sentInvoice ? 'Kirim Ulang Invoice' : 'Kirim Invoice'}
+            </button>
+          )}
         </div>
       </div>
     </div>

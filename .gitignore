@@ -10,7 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-.env
+.env*
+!.env.example
 *.local
 # Catatan/scratchpad markdown pribadi — standar di semua project di laptop ini
 .markdown/

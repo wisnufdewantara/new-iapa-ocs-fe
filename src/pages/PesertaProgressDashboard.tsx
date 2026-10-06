@@ -23,16 +23,63 @@ interface TeamPayment {
   paperTitle: string
   amount: number | null
   status: string | null
+  sentInvoice: boolean | null
 }
 
 interface MyPayments {
   teamPayments: TeamPayment[]
-  participantPayment: { amount: number | null; status: string | null } | null
+  participantPayment: { amount: number | null; status: string | null; sentInvoice?: boolean | null } | null
 }
 
 type StepState = 'done' | 'current' | 'upcoming' | 'blocked'
 
-function Step({ title, desc, state }: { title: string; desc: string; state: StepState }) {
+interface StepLink {
+  label: string
+  href: string
+  disabled?: boolean
+}
+
+function Step({
+  title,
+  desc,
+  state,
+  links,
+}: {
+  title: string
+  desc: string
+  state: StepState
+  links?: StepLink[]
+}) {
+
+  const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>, href: string, label: string) => {
+    e.preventDefault()
+    try {
+      // Create a temporary link element to trigger the download using the API instance
+      // The api instance will automatically attach the Authorization header
+      const response = await api.get(href, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      // Try to extract filename from Content-Disposition header if available
+      const contentDisposition = response.headers['content-disposition']
+      let filename = `${label.replace(/ /g, '_')}.pdf`
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/)
+        if (filenameMatch && filenameMatch.length === 2) {
+          filename = filenameMatch[1]
+        }
+      }
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode?.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (err: any) {
+      console.error('Download failed:', err)
+      alert(`Gagal mengunduh ${label}: ${err.message}`)
+    }
+  }
+
   const dot =
     state === 'done'
       ? 'bg-green-500'
@@ -52,17 +99,41 @@ function Step({ title, desc, state }: { title: string; desc: string; state: Step
       <div className="pb-6">
         <p className={`text-sm font-semibold ${textColor}`}>{title}</p>
         <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{desc}</p>
+        {links && links.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {links.map((link) =>
+              link.disabled ? (
+                <span
+                  key={link.label}
+                  className="inline-flex cursor-not-allowed select-none items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-400 opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-500"
+                  title="Belum tersedia"
+                >
+                  🏆 {link.label}
+                </span>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={(e) => handleDownload(e, link.href, link.label)}
+                  className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 cursor-pointer"
+                >
+                  ⬇ {link.label}
+                </a>
+              ),
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
+// Basis URL API — sama dengan yang dipakai axios instance di lib/axios
+
 // Progress tracker pribadi buat Peserta — gantiin daftar-semua-conference
 // yang gak ada gunanya buat conference yang udah lewat. Fokusnya "posisi
 // aku sekarang di mana", bukan browsing daftar acara. Cuma pakai endpoint
 // self-service yang udah ada (papers/mine, participants/mine, payment/mine)
-// — belum ada endpoint sertifikat versi "punya saya sendiri", jadi step
-// terakhir masih status generik, bukan link download nyata.
 export function PesertaProgressDashboard() {
   const { data: paper, isLoading: loadingPaper } = useQuery({
     queryKey: ['my-paper'],
@@ -118,6 +189,31 @@ export function PesertaProgressDashboard() {
             : 'upcoming'
     const certState: StepState = teamPayment?.status === 'verified' ? 'current' : 'upcoming'
 
+    // Link LOA — hanya muncul kalau paper Accepted
+    const loaLinks: StepLink[] =
+      paper.conferenceStatus === 'Accepted'
+        ? [{ label: 'Download LOA', href: '/loa/mine/download' }]
+        : []
+
+    // Link invoice / kuitansi sesuai status pembayaran
+    const paymentLinks: StepLink[] = (() => {
+      if (!teamPayment) return []
+      if (teamPayment.status === 'verified') {
+        return [
+          { label: 'Download Invoice', href: '/payment/mine/invoice' },
+          { label: 'Download Kuitansi Bayar', href: '/payment/mine/receipt' },
+        ]
+      }
+      if (teamPayment.sentInvoice) {
+        return [{ label: 'Download Invoice', href: '/payment/mine/invoice' }]
+      }
+      return []
+    })()
+
+    // Sertifikat — placeholder non-clickable
+    const certLinks: StepLink[] =
+      certState !== 'upcoming' ? [{ label: 'Sertifikat (Mendatang)', href: '#', disabled: true }] : []
+
     return (
       <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
         <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Progress Presenter</p>
@@ -134,6 +230,7 @@ export function PesertaProgressDashboard() {
                 : 'Masih menunggu keputusan reviewer.'
           }
           state={reviewState}
+          links={loaLinks}
         />
         {paper.reviewFeedback && (
           <div className="-mt-4 mb-6 ml-6 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
@@ -155,11 +252,13 @@ export function PesertaProgressDashboard() {
                   : 'Nominal belum dihitung admin.'
           }
           state={paymentState}
+          links={paymentLinks}
         />
         <Step
           title="Sertifikat"
           desc={certState === 'current' ? 'Akan dikirim admin setelah acara selesai.' : 'Muncul setelah pembayaran diverifikasi.'}
           state={certState}
+          links={certLinks}
         />
 
         {teamPayment && teamPayment.status !== 'verified' && (
@@ -176,6 +275,25 @@ export function PesertaProgressDashboard() {
   const paymentState: StepState = p.payment_status === 'verified' ? 'done' : p.total_amount != null ? 'current' : 'upcoming'
   const certState: StepState = p.payment_status === 'verified' ? 'current' : 'upcoming'
 
+  // Link invoice / kuitansi untuk participant
+  const participantPaymentLinks: StepLink[] = (() => {
+    const pp = payments?.participantPayment
+    if (!pp) return []
+    if (pp.status === 'verified') {
+      return [
+        { label: 'Download Invoice', href: '/payment/mine/invoice' },
+        { label: 'Download Kuitansi Bayar', href: '/payment/mine/receipt' },
+      ]
+    }
+    if (pp.sentInvoice) {
+      return [{ label: 'Download Invoice', href: '/payment/mine/invoice' }]
+    }
+    return []
+  })()
+
+  const certLinks: StepLink[] =
+    certState !== 'upcoming' ? [{ label: 'Sertifikat (Mendatang)', href: '#', disabled: true }] : []
+
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
       <p className="mb-6 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Progress Peserta</p>
@@ -191,11 +309,13 @@ export function PesertaProgressDashboard() {
               : 'Nominal belum dihitung admin.'
         }
         state={paymentState}
+        links={participantPaymentLinks}
       />
       <Step
         title="Sertifikat"
         desc={certState === 'current' ? 'Akan dikirim admin setelah acara selesai.' : 'Muncul setelah pembayaran diverifikasi.'}
         state={certState}
+        links={certLinks}
       />
 
       {p.payment_status !== 'verified' && (

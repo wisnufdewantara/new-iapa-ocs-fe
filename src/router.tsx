@@ -22,6 +22,7 @@ import { SettingsPage } from './pages/SettingsPage'
 import { UserManagementPage } from './pages/UserManagementPage'
 import { RolePermissionsPage } from './pages/admin/RolePermissionsPage'
 import { DeveloperDashboardPage } from './pages/admin/DeveloperDashboardPage'
+import { MailLogPage } from './pages/admin/MailLogPage'
 import { UserDetailPage } from './pages/admin/UserDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { GenerateLoaPage } from './pages/GenerateLoaPage'
@@ -33,6 +34,7 @@ import { PaymentPage } from './pages/PaymentPage'
 import { PaymentManagementPage } from './pages/PaymentManagementPage'
 import { PaymentWriterDetailPage } from './pages/PaymentWriterDetailPage'
 import { JoinConferencePage } from './pages/JoinConferencePage'
+import { ReportPage } from './pages/ReportPage'
 import { GuidePage } from './pages/GuidePage'
 import { FunctionalTestPage } from './pages/FunctionalTestPage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
@@ -56,10 +58,12 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/certificate-templates': <CertificateTemplatesPage />,
   '/payment': <PaymentPage />,
   '/payment/manage': <PaymentManagementPage />,
+  '/report': <ReportPage />,
   '/admin/settings': <SettingsPage />,
   '/admin/roles': <UserManagementPage />,
   '/admin/permissions': <RolePermissionsPage />,
   '/admin/developer': <DeveloperDashboardPage />,
+  '/admin/mail-log': <MailLogPage />,
   '/guide': <GuidePage />,
   '/profile': <ProfilePage />,
 }
