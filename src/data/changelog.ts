@@ -8,6 +8,35 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-10-06',
+    items: [
+      'Halaman Download Laporan — export CSV paper, pembayaran, dan peserta',
+      'Kirim kwitansi otomatis (bukan invoice ulang) begitu pembayaran peserta verified',
+      'Halaman detail pembayaran peserta: lihat bukti transfer + override nominal/membership',
+      'Perbaikan keamanan: celah stored-XSS di upload bukti transfer, akses silang data penulis antar-paper, nominal pembayaran bisa berubah diam-diam setelah verified, dan kirim kwitansi dobel akibat double-click',
+    ],
+  },
+  {
+    date: '2026-10-01',
+    items: [
+      'Sistem manajemen template sertifikat baru (editor drag-and-drop, upload desain sendiri, placeholder teks manual)',
+      'Perbaikan invoice PDF yang sempat pakai halaman polos, bukan template asli',
+    ],
+  },
+  {
+    date: '2026-09-30',
+    items: ['Fitur lupa password & reset password'],
+  },
+  {
+    date: '2026-09-23',
+    items: [
+      'Bulk accept/reject paper + catatan reviewer',
+      'Halaman detail pembayaran: edit penulis (tambah/ganti nama/hapus) + lihat bukti transfer',
+      'Sinkronisasi status & nominal pembayaran otomatis ke sistem lama (ocs2)',
+      'Perbaikan keamanan: password SMTP yang sempat bocor plaintext lewat API Settings',
+    ],
+  },
+  {
     date: '2026-09-20',
     items: [
       'Sistem tombol biru terpadu di seluruh halaman',
