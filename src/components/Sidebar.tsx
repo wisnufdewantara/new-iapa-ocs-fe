@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/authStore'
 import { MENU } from '../config/menu'
 import { useMenu } from '../hooks/useMenu'
 import { APP_VERSION } from '../version'
+import { LegacySyncButton } from './LegacySyncButton'
 import logo from '../assets/logo-iapa.png'
 
 interface SidebarProps {
@@ -60,6 +61,11 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
           </div>
         ))}
       </nav>
+
+      {/* Tombol sync ke DB OCS lawas — Admin-only, matching sensitivitas
+          aksi (nyentuh data gabungan 13 tabel lintas sistem). Ditaruh di
+          atas footer versioning sesuai permintaan. */}
+      {role === 'Admin' && <LegacySyncButton />}
 
       {/* Footer versioning — pola sama kayak IAPA Store (v{number}-{YYMMDD}
           di footer). Beda dari MENU: ini bukan item per-role, jadi selalu
