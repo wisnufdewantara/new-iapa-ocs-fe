@@ -84,6 +84,35 @@
 .dark .btn-outline:hover:not(:disabled) {
   background-color: rgb(255 255 255 / 0.06);
 }
+/* Tombol "Choose File" bawaan browser ke-reset polos sama Tailwind (nggak
+   kelihatan kayak tombol) — samain tampilannya dengan .btn-outline di
+   SEMUA <input type="file"> sekaligus. */
+input[type='file']::file-selector-button {
+  margin-right: 0.75rem;
+  border: 1px solid var(--color-blue-700);
+  border-radius: 0.375rem;
+  background-color: transparent;
+  color: var(--color-blue-700);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+input[type='file']::file-selector-button:hover {
+  background-color: var(--color-blue-50);
+}
+.dark input[type='file']::file-selector-button {
+  border-color: var(--color-blue-400);
+  color: var(--color-blue-300);
+}
+.dark input[type='file']::file-selector-button:hover {
+  background-color: rgb(255 255 255 / 0.06);
+}
+input[type='file'] {
+  cursor: pointer;
+}
+
 .btn-ghost {
   background-color: transparent;
   color: var(--color-blue-700);
