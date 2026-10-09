@@ -13,7 +13,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Sistem baru resmi pindah ke ocs2.iapa.or.id (dev-ocs.iapa.or.id dialihkan otomatis)',
       'Halaman Syarat dan Ketentuan (ID/EN), termasuk kebijakan pembayaran non-refundable — wajib disetujui saat registrasi',
       'Admin bisa upload bukti transfer atas nama presenter/peserta (tombol Override di kartu Bukti Transfer)',
-      'Peserta bisa upload bukti transfer langsung dari Dashboard (PDF/JPG/PNG), dan ganti bukti selama belum diverifikasi',
+      'Peserta bisa upload bukti transfer langsung dari Dashboard (PDF/JPG/PNG), lihat lagi bukti yang sudah diupload, dan ganti bukti selama belum diverifikasi',
       'Tombol Lihat Profil di Kelola Role',
       'Ikon situs (favicon) IAPA',
     ],

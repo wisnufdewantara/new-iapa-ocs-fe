@@ -8,6 +8,13 @@ import { toastSuccess, toastError } from '../lib/toast'
 // di halaman Pembayaran Saya (semua tagihan) DAN di Dashboard (cuma yang
 // masih butuh bukti bayar), biar peserta nggak harus nyari menu dulu.
 
+interface UploadedProof {
+  url: string
+  senderName: string | null
+  transferDate: string | null
+  uploadedAt: string | null
+}
+
 interface TeamPayment {
   paymentId: string
   paperTitle: string
@@ -16,6 +23,7 @@ interface TeamPayment {
   status: string | null
   description: string | null
   sentInvoice: boolean
+  proofs: UploadedProof[]
 }
 
 interface ParticipantPayment {
@@ -25,6 +33,7 @@ interface ParticipantPayment {
   status: string | null
   description: string | null
   sentInvoice: boolean
+  proofs: UploadedProof[]
 }
 
 export interface MineResponse {
@@ -49,6 +58,7 @@ export function PaymentCard({
   transferAmount,
   status,
   description,
+  proofs,
   bank,
   onUpload,
   uploading,
@@ -58,6 +68,7 @@ export function PaymentCard({
   transferAmount: number | null
   status: string | null
   description: string | null
+  proofs: UploadedProof[]
   bank: MineResponse['bank']
   onUpload: (file: File, senderName: string, transferDate: string) => void
   uploading: boolean
@@ -84,6 +95,27 @@ export function PaymentCard({
         <p className="mt-1 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
           Alasan ditolak: {description}
         </p>
+      )}
+
+      {proofs.length > 0 && (
+        <div className="mt-3">
+          <p className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Bukti transfer yang sudah diupload</p>
+          <ul className="flex flex-col gap-1">
+            {proofs.map((pr, i) => (
+              <li key={pr.url} className="text-sm text-gray-600 dark:text-gray-300">
+                <a href={pr.url} target="_blank" rel="noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                  Lihat Bukti{proofs.length > 1 ? ` #${proofs.length - i}` : ''}
+                </a>
+                {(pr.senderName || pr.transferDate) && (
+                  <span className="text-gray-500 dark:text-gray-400">
+                    {' '}
+                    — {[pr.senderName, pr.transferDate].filter(Boolean).join(', ')}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {bank.bankAccountNumber && (
@@ -223,6 +255,7 @@ export function MyPaymentCards({ onlyNeedingProof = false, title }: { onlyNeedin
           transferAmount={tp.transferAmount}
           status={tp.status}
           description={tp.description}
+          proofs={tp.proofs ?? []}
           bank={data.bank}
           uploading={uploadMutation.isPending}
           onUpload={(file, senderName, transferDate) =>
@@ -238,6 +271,7 @@ export function MyPaymentCards({ onlyNeedingProof = false, title }: { onlyNeedin
           transferAmount={participantPayment.transferAmount}
           status={participantPayment.status}
           description={participantPayment.description}
+          proofs={participantPayment.proofs ?? []}
           bank={data.bank}
           uploading={uploadMutation.isPending}
           onUpload={(file, senderName, transferDate) => uploadMutation.mutate({ file, senderName, transferDate })}
