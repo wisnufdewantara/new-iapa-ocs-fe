@@ -3,6 +3,7 @@ import { api } from '../lib/axios'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuthStore } from '../stores/authStore'
 import { PesertaProgressDashboard } from './PesertaProgressDashboard'
+import { MyPaymentCards } from '../components/MyPaymentCards'
 
 interface Conference {
   conference_id: string
@@ -22,7 +23,15 @@ export function DashboardPage() {
   return (
     <div>
       <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
-      {role === 'Peserta' ? <PesertaProgressDashboard /> : <ConferenceListDashboard />}
+      {role === 'Peserta' ? (
+        <div className="flex flex-col gap-6">
+          {/* Muncul cuma kalau ada tagihan yang masih nunggu bukti transfer */}
+          <MyPaymentCards onlyNeedingProof title="Upload Bukti Transfer" />
+          <PesertaProgressDashboard />
+        </div>
+      ) : (
+        <ConferenceListDashboard />
+      )}
     </div>
   )
 }
