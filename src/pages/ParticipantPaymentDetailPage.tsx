@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { toastSuccess, toastError } from '../lib/toast'
+import { AdminProofUpload } from '../components/AdminProofUpload'
 
 interface ParticipantDetail {
   attendanceId: string
@@ -124,6 +125,13 @@ export function ParticipantPaymentDetailPage() {
             <p className="text-xs text-gray-500 dark:text-gray-400">{data.transferDate || '-'}</p>
           </a>
         )}
+        <AdminProofUpload
+          endpoint={`/payment/participant/${attendanceId}/admin-proof`}
+          onUploaded={() => {
+            queryClient.invalidateQueries({ queryKey: ['participant-payment-detail', attendanceId] })
+            queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+          }}
+        />
       </div>
 
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">

@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { toastSuccess, toastError } from '../lib/toast'
+import { AdminProofUpload } from '../components/AdminProofUpload'
 
 interface Writer {
   writerId: string
@@ -277,6 +278,13 @@ export function PaymentWriterDetailPage() {
             ))}
           </div>
         )}
+        <AdminProofUpload
+          endpoint={`/payment/${paymentId}/admin-proof`}
+          onUploaded={() => {
+            queryClient.invalidateQueries({ queryKey: ['payment-detail', paymentId] })
+            queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+          }}
+        />
       </div>
 
       <div className="mb-3 flex items-center justify-between">
