@@ -108,9 +108,12 @@ export function SubmitPaperPage() {
   const submissionClosed =
     conference?.conference_settings.find((s) => s.setting_key === 'papers_submission_open')?.setting_value === 'false'
 
+  // Dicek PER conference yang dipilih — presenter tahun lalu tetap bisa
+  // submit paper baru ke conference yang sedang berjalan.
   const { data: myPaper, isLoading: loadingMine } = useQuery({
-    queryKey: ['papers', 'mine'],
-    queryFn: async () => (await api.get<MyPaper | null>('/papers/mine')).data,
+    queryKey: ['papers', 'mine', conferenceId],
+    queryFn: async () => (await api.get<MyPaper | null>('/papers/mine', { params: { conferenceId } })).data,
+    enabled: !!conferenceId,
   })
 
   const { data: profile } = useQuery({
@@ -152,6 +155,7 @@ export function SubmitPaperPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['papers', 'mine'] })
+      queryClient.invalidateQueries({ queryKey: ['my-paper'] })
       toastSuccess('Paper berhasil disubmit!')
     },
     onError: (err) => toastError(err, 'Gagal submit paper.'),
@@ -166,7 +170,7 @@ export function SubmitPaperPage() {
     | undefined
   const subThemeOptions = conferenceSubThemes && conferenceSubThemes.length > 0 ? conferenceSubThemes : DEFAULT_SUB_THEMES
 
-  if (loadingMine) {
+  if (loadingMine && !!conferenceId) {
     return <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
   }
 
@@ -175,7 +179,9 @@ export function SubmitPaperPage() {
       <div>
         <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Submit Paper</h1>
         <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
-          <p className="text-sm text-gray-600 dark:text-gray-300">Kamu sudah pernah submit paper:</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Kamu sudah submit paper untuk {conference?.conference_name ?? 'conference ini'}:
+          </p>
           <p className="mt-2 text-lg font-semibold text-gray-800 dark:text-gray-100">{myPaper.paperTitle}</p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Status: {myPaper.conferenceStatus ?? '-'} / {myPaper.paperStatus}

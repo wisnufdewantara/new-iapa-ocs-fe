@@ -26,7 +26,8 @@ interface Profile {
 }
 
 interface MyParticipant {
-  conference_id: string
+  conference_id: string | null
+  conference_name: string | null
   is_member: boolean | null
   payment_status: string | null
   total_amount: number | null
@@ -58,9 +59,12 @@ export function JoinConferencePage() {
 
   const conference = activeConferences?.find((c) => c.conference_id === conferenceId)
 
+  // Dicek PER conference yang dipilih — presenter/peserta tahun lalu
+  // tetap boleh daftar ke conference yang baru.
   const { data: myPaper, isLoading: loadingPaper } = useQuery({
-    queryKey: ['papers', 'mine'],
-    queryFn: async () => (await api.get<MyPaper | null>('/papers/mine')).data,
+    queryKey: ['papers', 'mine', conferenceId],
+    queryFn: async () => (await api.get<MyPaper | null>('/papers/mine', { params: { conferenceId } })).data,
+    enabled: !!conferenceId,
   })
 
   const { data: myParticipant, isLoading: loadingParticipant } = useQuery({
@@ -77,12 +81,20 @@ export function JoinConferencePage() {
     mutationFn: () => api.post('/participants/join', { isMember: isMember === 'true', conferenceId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['participants', 'mine'] })
+      queryClient.invalidateQueries({ queryKey: ['my-participant'] })
+      queryClient.invalidateQueries({ queryKey: ['payment-mine'] })
+      queryClient.invalidateQueries({ queryKey: ['my-payments-dashboard'] })
       toastSuccess('Berhasil join sebagai peserta.')
     },
     onError: (err) => toastError(err, 'Gagal join conference.'),
   })
 
-  if (loadingPaper || loadingParticipant) {
+  // Baris peserta milik conference LAIN (tahun lalu) bukan halangan —
+  // backend mindahin ke conference baru pas join.
+  const registeredHere = !!myParticipant && myParticipant.conference_id === conferenceId
+  const pastRegistration = !!myParticipant && !registeredHere ? myParticipant : null
+
+  if ((loadingPaper && !!conferenceId) || loadingParticipant) {
     return <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
   }
 
@@ -94,20 +106,22 @@ export function JoinConferencePage() {
         <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Join Conference</h1>
         <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Anda sudah submit paper sebagai presenter (<strong>{myPaper.paperTitle}</strong>), jadi tidak perlu join
-            sebagai peserta biasa.
+            Anda sudah submit paper sebagai presenter di {conference?.conference_name ?? 'conference ini'}{' '}
+            (<strong>{myPaper.paperTitle}</strong>), jadi tidak perlu join sebagai peserta biasa.
           </p>
         </div>
       </div>
     )
   }
 
-  if (myParticipant) {
+  if (registeredHere && myParticipant) {
     return (
       <div>
         <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Join Conference</h1>
         <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
-          <p className="text-sm text-gray-600 dark:text-gray-300">Anda sudah terdaftar sebagai peserta.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Anda sudah terdaftar sebagai peserta {myParticipant.conference_name ?? ''}.
+          </p>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Status keanggotaan: {myParticipant.is_member ? 'Member IAPA' : 'Non-Member'}
           </p>
@@ -155,6 +169,13 @@ export function JoinConferencePage() {
         </div>
       ) : (
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Untuk: {conference.conference_name}</p>
+      )}
+
+      {pastRegistration?.conference_name && (
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          Anda sebelumnya terdaftar sebagai peserta di {pastRegistration.conference_name}. Silakan daftar ulang untuk
+          conference ini.
+        </p>
       )}
 
       <form

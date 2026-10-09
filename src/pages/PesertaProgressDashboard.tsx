@@ -1,10 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/axios'
+import { useActiveConferences } from '../hooks/useActiveConferences'
 
 interface MyPaper {
   paperId: string
   paperTitle: string
+  conferenceId: string | null
+  conferenceName: string | null
   conferenceStatus: 'Waiting' | 'Accepted' | 'Rejected' | null
   paperStatus: string | null
   documentUrl: string | null
@@ -13,6 +16,8 @@ interface MyPaper {
 
 interface MyParticipant {
   attendance_id: string
+  conference_id: string | null
+  conference_name: string | null
   payment_status: string | null
   total_amount: number | null
   is_member: boolean | null
@@ -148,20 +153,40 @@ export function PesertaProgressDashboard() {
     queryFn: async () => (await api.get<MyPayments>('/payment/mine')).data,
   })
 
-  const isLoading = loadingPaper || loadingParticipant || loadingPayments
+  const { data: activeConferences, isLoading: loadingActive } = useActiveConferences()
+
+  const isLoading = loadingPaper || loadingParticipant || loadingPayments || loadingActive
 
   if (isLoading) {
     return <p className="text-sm text-gray-500 dark:text-gray-400">Memuat progress kamu...</p>
   }
 
-  // Belum daftar apa-apa sama sekali — presenter maupun participant biasa.
-  if (!paper && !participant) {
+  // Progress cuma buat conference yang MASIH aktif — paper/pendaftaran
+  // peserta tahun lalu jadi riwayat, bukan "posisi aku sekarang".
+  const activeIds = new Set((activeConferences ?? []).map((c) => c.conference_id))
+  const currentPaper = paper && paper.conferenceId && activeIds.has(paper.conferenceId) ? paper : null
+  const currentParticipant =
+    participant && participant.conference_id && activeIds.has(participant.conference_id) ? participant : null
+  const history = [
+    paper && !currentPaper ? `Presenter — ${paper.conferenceName ?? 'conference sebelumnya'}` : null,
+    participant && !currentParticipant ? `Peserta — ${participant.conference_name ?? 'conference sebelumnya'}` : null,
+  ].filter((h): h is string => !!h)
+
+  // Belum daftar di conference yang sedang berjalan — presenter maupun participant biasa.
+  if (!currentPaper && !currentParticipant) {
     return (
       <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
-        <p className="mb-1 font-semibold text-gray-800 dark:text-gray-100">Kamu belum terdaftar di conference manapun</p>
-        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-          Pilih salah satu: submit paper buat jadi presenter, atau join sebagai peserta biasa.
+        <p className="mb-1 font-semibold text-gray-800 dark:text-gray-100">
+          Kamu belum terdaftar di conference yang sedang berjalan
         </p>
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          {activeConferences && activeConferences.length > 0
+            ? `${activeConferences.map((c) => c.conference_name).join(', ')} — pilih salah satu: submit paper buat jadi presenter, atau join sebagai peserta biasa.`
+            : 'Pilih salah satu: submit paper buat jadi presenter, atau join sebagai peserta biasa.'}
+        </p>
+        {history.length > 0 && (
+          <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">Riwayat: {history.join(' · ')}</p>
+        )}
         <div className="flex flex-wrap gap-3">
           <Link to="/papers/submit" className="btn btn-primary">
             Submit Paper
@@ -175,7 +200,8 @@ export function PesertaProgressDashboard() {
   }
 
   // Jalur presenter (submit paper).
-  if (paper) {
+  if (currentPaper) {
+    const paper = currentPaper
     const teamPayment = payments?.teamPayments.find((p) => p.paperTitle === paper.paperTitle)
     const reviewState: StepState =
       paper.conferenceStatus === 'Accepted' ? 'done' : paper.conferenceStatus === 'Rejected' ? 'blocked' : 'current'
@@ -216,7 +242,9 @@ export function PesertaProgressDashboard() {
 
     return (
       <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Progress Presenter</p>
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          Progress Presenter{paper.conferenceName ? ` — ${paper.conferenceName}` : ''}
+        </p>
         <p className="mb-6 font-semibold text-gray-800 dark:text-gray-100">{paper.paperTitle}</p>
 
         <Step title="Paper Disubmit" desc={paper.documentUrl ? 'Dokumen berhasil diunggah.' : 'Menunggu dokumen.'} state="done" />
@@ -271,7 +299,7 @@ export function PesertaProgressDashboard() {
   }
 
   // Jalur participant biasa (join, bukan presenter).
-  const p = participant!
+  const p = currentParticipant!
   const paymentState: StepState = p.payment_status === 'verified' ? 'done' : p.total_amount != null ? 'current' : 'upcoming'
   const certState: StepState = p.payment_status === 'verified' ? 'current' : 'upcoming'
 
@@ -296,7 +324,9 @@ export function PesertaProgressDashboard() {
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
-      <p className="mb-6 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Progress Peserta</p>
+      <p className="mb-6 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+        Progress Peserta{p.conference_name ? ` — ${p.conference_name}` : ''}
+      </p>
 
       <Step title="Terdaftar sebagai Peserta" desc={p.is_member ? 'Status: IAPA Member.' : 'Status: Non-Member.'} state="done" />
       <Step

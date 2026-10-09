@@ -15,6 +15,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Admin bisa upload bukti transfer atas nama presenter/peserta (tombol Override di kartu Bukti Transfer)',
       'Peserta bisa upload bukti transfer langsung dari Dashboard (PDF/JPG/PNG), lihat lagi bukti yang sudah diupload, dan ganti bukti selama belum diverifikasi',
       'Tombol Lihat Profil di Kelola Role',
+      'Presenter/peserta tahun lalu bisa daftar lagi (join atau submit paper) ke conference yang sedang berjalan; Dashboard menampilkan progress conference aktif',
       'Ikon situs (favicon) IAPA',
     ],
   },
