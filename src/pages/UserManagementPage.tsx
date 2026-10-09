@@ -148,13 +148,18 @@ export function UserManagementPage() {
         header: '',
         enableGlobalFilter: false,
         cell: ({ row }) => (
-          <button
-            onClick={() => confirmDelete(row.original)}
-            disabled={deleteMutation.isPending}
-            className="btn btn-danger-ghost btn-sm"
-          >
-            Hapus
-          </button>
+          <div className="flex gap-2">
+            <Link to={`/admin/users/${row.original.userId}`} className="btn btn-outline btn-sm">
+              Lihat Profil
+            </Link>
+            <button
+              onClick={() => confirmDelete(row.original)}
+              disabled={deleteMutation.isPending}
+              className="btn btn-danger-ghost btn-sm"
+            >
+              Hapus
+            </button>
+          </div>
         ),
       },
     ],

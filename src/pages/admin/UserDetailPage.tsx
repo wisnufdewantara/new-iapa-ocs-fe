@@ -8,9 +8,19 @@ interface PaperInfo {
   title: string
   paperStatus: string
   conferenceStatus: string | null
+  conferenceName: string | null
+}
+
+interface CoAuthoredPaper {
+  paperId: string
+  title: string
+  conferenceStatus: string | null
+  conferenceName: string | null
+  writerRole: string | null
 }
 
 interface ParticipantInfo {
+  conferenceName: string | null
   isMember: boolean | null
   paymentStatus: string | null
   totalAmount: number | null
@@ -18,6 +28,7 @@ interface ParticipantInfo {
 
 interface PaymentInfo {
   paymentId: string
+  paperTitle: string | null
   amount: number | null
   status: string | null
 }
@@ -34,7 +45,9 @@ interface UserDetail {
   gender: string
   role: string
   createdAt: string | null
+  photoUrl: string | null
   papers: PaperInfo[]
+  coAuthoredPapers: CoAuthoredPaper[]
   participant: ParticipantInfo | null
   payments: PaymentInfo[]
 }
@@ -50,7 +63,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   )
 }
 
-// Detail user buat admin — read-only, agregat dari 3 domain (papers,
+// Detail user buat admin (tombol "Lihat Profil" di Kelola Role) — read-only, agregat dari 3 domain (papers,
 // participant, payments) sekaligus, biar admin nggak perlu buka 3
 // halaman terpisah cuma buat ngecek 1 orang.
 export function UserDetailPage() {
@@ -73,12 +86,19 @@ export function UserDetailPage() {
         <Link to="/admin/roles" className="text-sm text-gray-500 hover:underline dark:text-gray-400">
           ← Kembali ke Kelola Role
         </Link>
-        <h1 className="mt-1 text-xl font-bold text-gray-800 dark:text-gray-100">
-          {data.firstName} {data.lastName}
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          @{data.username} · {data.role}
-        </p>
+        <div className="mt-2 flex items-center gap-4">
+          {data.photoUrl?.startsWith('https://') && (
+            <img src={data.photoUrl} alt="" className="h-16 w-16 rounded-full object-cover" />
+          )}
+          <div>
+            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              {data.firstName} {data.lastName}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              @{data.username} · {data.role}
+            </p>
+          </div>
+        </div>
       </div>
 
       <Card title="Info Akun">
@@ -101,7 +121,24 @@ export function UserDetailPage() {
               <li key={p.paperId} className="rounded-md border border-gray-200 p-3 text-sm dark:border-white/10">
                 <p className="font-medium text-gray-800 dark:text-gray-100">{p.title}</p>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Status: {p.conferenceStatus ?? '-'} / {p.paperStatus}
+                  {p.conferenceName ?? '-'} · Status: {p.conferenceStatus ?? '-'} / {p.paperStatus}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <Card title="Tercantum sebagai Penulis di Paper Lain">
+        {data.coAuthoredPapers.length === 0 ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500">Tidak tercantum di paper orang lain.</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {data.coAuthoredPapers.map((p) => (
+              <li key={p.paperId} className="rounded-md border border-gray-200 p-3 text-sm dark:border-white/10">
+                <p className="font-medium text-gray-800 dark:text-gray-100">{p.title}</p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {p.conferenceName ?? '-'} · {p.writerRole ?? 'Penulis'} · Status: {p.conferenceStatus ?? '-'}
                 </p>
               </li>
             ))}
@@ -114,9 +151,13 @@ export function UserDetailPage() {
           <p className="text-sm text-gray-400 dark:text-gray-500">Belum pernah join sebagai peserta.</p>
         ) : (
           <div className="text-sm text-gray-600 dark:text-gray-300">
+            <p>Conference: {data.participant.conferenceName ?? '-'}</p>
             <p>Status keanggotaan: {data.participant.isMember ? 'Member IAPA' : 'Non-Member'}</p>
             <p>Biaya partisipasi: {rupiah(data.participant.totalAmount)}</p>
             <p>Status pembayaran: {data.participant.paymentStatus ?? '-'}</p>
+            <Link to={`/payment/manage/participant/${data.userId}`} className="btn btn-outline btn-sm mt-3">
+              Detail Pembayaran
+            </Link>
           </div>
         )}
       </Card>
@@ -127,9 +168,15 @@ export function UserDetailPage() {
         ) : (
           <ul className="flex flex-col gap-2">
             {data.payments.map((p) => (
-              <li key={p.paymentId} className="rounded-md border border-gray-200 p-3 text-sm dark:border-white/10">
-                <p className="text-gray-800 dark:text-gray-100">{rupiah(p.amount)}</p>
-                <p className="text-gray-500 dark:text-gray-400">Status: {p.status ?? '-'}</p>
+              <li key={p.paymentId}>
+                <Link
+                  to={`/payment/manage/${p.paymentId}`}
+                  className="block rounded-md border border-gray-200 p-3 text-sm hover:border-blue-400 dark:border-white/10 dark:hover:border-blue-400"
+                >
+                  {p.paperTitle && <p className="font-medium text-gray-800 dark:text-gray-100">{p.paperTitle}</p>}
+                  <p className="text-gray-800 dark:text-gray-100">{rupiah(p.amount)}</p>
+                  <p className="text-gray-500 dark:text-gray-400">Status: {p.status ?? '-'}</p>
+                </Link>
               </li>
             ))}
           </ul>
