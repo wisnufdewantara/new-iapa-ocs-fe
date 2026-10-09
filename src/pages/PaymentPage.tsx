@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { toastSuccess, toastError } from '../lib/toast'
@@ -86,6 +87,13 @@ function PaymentCard({
         <div className="mt-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-300">
           Transfer ke <strong>{bank.bankName}</strong> a.n. <strong>{bank.bankHolder}</strong> — No. Rek{' '}
           <strong>{bank.bankAccountNumber}</strong>
+          <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+            Pembayaran bersifat <strong>non-refundable</strong> dalam kondisi apa pun —{' '}
+            <Link to="/terms" target="_blank" className="underline">
+              Syarat dan Ketentuan
+            </Link>
+            .
+          </span>
         </div>
       )}
 

@@ -8,6 +8,24 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-10-09',
+    items: [
+      'Sistem baru resmi pindah ke ocs2.iapa.or.id (dev-ocs.iapa.or.id dialihkan otomatis)',
+      'Halaman Syarat dan Ketentuan (ID/EN), termasuk kebijakan pembayaran non-refundable — wajib disetujui saat registrasi',
+      'Admin bisa upload bukti transfer atas nama presenter/peserta',
+      'Ikon situs (favicon) IAPA',
+    ],
+  },
+  {
+    date: '2026-10-07',
+    items: [
+      'Tombol "Sync dengan DB OCS Lawas" di sidebar (Admin)',
+      'Download Laporan: pilih kolom + format Excel (.xlsx), link dokumen paper & bukti bayar',
+      'Bukti transfer peserta dari ocs2 ikut tertarik otomatis tiap 15 menit',
+      'Perbaikan keamanan: dokumen paper & bukti transfer tidak lagi bisa diakses publik tanpa izin',
+    ],
+  },
+  {
     date: '2026-10-06',
     items: [
       'Halaman Download Laporan — export CSV paper, pembayaran, dan peserta',

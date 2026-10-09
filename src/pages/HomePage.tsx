@@ -138,9 +138,12 @@ export function HomePage() {
         ))}
       </main>
 
-      <footer className="flex justify-center border-t border-[#ddd6c8] px-6 py-8 dark:border-white/10 sm:px-16">
+      <footer className="flex flex-col items-center gap-4 border-t border-[#ddd6c8] px-6 py-8 dark:border-white/10 sm:px-16">
         <Link to="/event-history" className="btn btn-outline font-sans">
           Lihat Event Sebelumnya
+        </Link>
+        <Link to="/terms" className="font-sans text-sm text-gray-500 hover:underline dark:text-gray-400">
+          Syarat dan Ketentuan
         </Link>
       </footer>
     </div>

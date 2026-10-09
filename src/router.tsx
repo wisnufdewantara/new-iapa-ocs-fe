@@ -10,6 +10,7 @@ import { EventDetailPage } from './pages/EventDetailPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
+import { TermsPage } from './pages/TermsPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ConferencePage } from './pages/ConferencePage'
@@ -112,6 +113,7 @@ export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/terms', element: <TermsPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/functional-test', element: <FunctionalTestPage /> },
   { path: '/certificate-validation/:code', element: <CertificateValidationPage /> },

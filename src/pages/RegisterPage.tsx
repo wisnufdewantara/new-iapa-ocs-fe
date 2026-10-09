@@ -43,6 +43,7 @@ const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+={}[\]|\\:
 export function RegisterPage() {
   usePageTitle('Daftar')
   const [form, setForm] = useState<FormData>(EMPTY)
+  const [acceptTerms, setAcceptTerms] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -82,10 +83,14 @@ export function RegisterPage() {
       setError('Passwords do not match!')
       return
     }
+    if (!acceptTerms) {
+      setError('Please read and accept the Terms and Conditions to create an account.')
+      return
+    }
 
     setLoading(true)
     try {
-      await api.post('/auth/register', form)
+      await api.post('/auth/register', { ...form, acceptTerms })
       toastSuccess('Registrasi berhasil. Silakan login.')
       navigate('/login')
     } catch (err) {
@@ -203,7 +208,23 @@ export function RegisterPage() {
             </Field>
           </div>
 
-          <button type="submit" disabled={loading} className="btn btn-primary mt-6 w-full">
+          <label className="mt-6 flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={acceptTerms}
+              onChange={(e) => setAcceptTerms(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>
+              I have read and agree to the{' '}
+              <Link to="/terms" target="_blank" className="font-semibold text-brand-navy underline dark:text-brand-orange">
+                Terms and Conditions
+              </Link>
+              , including the <strong>non-refundable</strong> payment policy.
+            </span>
+          </label>
+
+          <button type="submit" disabled={loading} className="btn btn-primary mt-4 w-full">
             {loading ? 'Memproses...' : 'Create Account'}
           </button>
 

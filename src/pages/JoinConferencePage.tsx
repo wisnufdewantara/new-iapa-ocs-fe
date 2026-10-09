@@ -205,6 +205,15 @@ export function JoinConferencePage() {
           </select>
         </div>
 
+        <p className="rounded-md border border-brand-orange/40 bg-brand-orange/5 px-3 py-2 text-xs text-gray-700 dark:text-gray-300">
+          Biaya pendaftaran yang sudah dibayarkan <strong>tidak dapat dikembalikan (non-refundable)</strong> dalam kondisi
+          apa pun. Lihat{' '}
+          <Link to="/terms" target="_blank" className="font-semibold text-brand-navy underline dark:text-brand-orange">
+            Syarat dan Ketentuan
+          </Link>
+          .
+        </p>
+
         <button
           type="submit"
           disabled={isMember === '' || joinMutation.isPending}
