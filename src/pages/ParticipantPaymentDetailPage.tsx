@@ -103,8 +103,13 @@ export function ParticipantPaymentDetailPage() {
         {data.email} &middot; {data.conferenceName}
       </p>
 
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
-        <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Bukti Transfer</p>
+      <AdminProofUpload
+        endpoint={`/payment/participant/${attendanceId}/admin-proof`}
+        onUploaded={() => {
+          queryClient.invalidateQueries({ queryKey: ['participant-payment-detail', attendanceId] })
+          queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+        }}
+      >
         {!data.proofUrl ? (
           <p className="text-sm italic text-gray-400 dark:text-gray-500">Belum ada bukti transfer diupload.</p>
         ) : (
@@ -125,14 +130,7 @@ export function ParticipantPaymentDetailPage() {
             <p className="text-xs text-gray-500 dark:text-gray-400">{data.transferDate || '-'}</p>
           </a>
         )}
-        <AdminProofUpload
-          endpoint={`/payment/participant/${attendanceId}/admin-proof`}
-          onUploaded={() => {
-            queryClient.invalidateQueries({ queryKey: ['participant-payment-detail', attendanceId] })
-            queryClient.invalidateQueries({ queryKey: ['payment-list'] })
-          }}
-        />
-      </div>
+      </AdminProofUpload>
 
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
         <div className="mb-3 flex items-center justify-between">

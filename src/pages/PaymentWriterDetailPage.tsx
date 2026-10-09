@@ -251,8 +251,13 @@ export function PaymentWriterDetailPage() {
       <h1 className="mb-1 text-xl font-bold text-gray-800 dark:text-gray-100">{data.paperTitle}</h1>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Submitter: {data.submitterName}</p>
 
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
-        <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Bukti Transfer</p>
+      <AdminProofUpload
+        endpoint={`/payment/${paymentId}/admin-proof`}
+        onUploaded={() => {
+          queryClient.invalidateQueries({ queryKey: ['payment-detail', paymentId] })
+          queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+        }}
+      >
         {data.proofs.length === 0 ? (
           <p className="text-sm italic text-gray-400 dark:text-gray-500">Belum ada bukti transfer diupload.</p>
         ) : (
@@ -278,14 +283,7 @@ export function PaymentWriterDetailPage() {
             ))}
           </div>
         )}
-        <AdminProofUpload
-          endpoint={`/payment/${paymentId}/admin-proof`}
-          onUploaded={() => {
-            queryClient.invalidateQueries({ queryKey: ['payment-detail', paymentId] })
-            queryClient.invalidateQueries({ queryKey: ['payment-list'] })
-          }}
-        />
-      </div>
+      </AdminProofUpload>
 
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Daftar Penulis</p>
