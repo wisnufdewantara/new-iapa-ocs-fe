@@ -89,7 +89,8 @@ export function PaymentCard({
         </p>
       )}
       <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-        Status: {status ? (STATUS_LABEL[status] ?? status) : '-'}
+        Status:{' '}
+        {isAwaitingPayment(status, amount) ? STATUS_LABEL['waiting for payment'] : status ? (STATUS_LABEL[status] ?? status) : '-'}
       </p>
       {status === 'rejected' && description && (
         <p className="mt-1 rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
@@ -187,7 +188,14 @@ export function PaymentCard({
 // Tagihan yang nominalnya udah ada tapi belum ada bukti (atau bukti
 // ditolak). Status null = data lama dari ocs2 yang belum sempat diisi.
 function needsProof(status: string | null, amount: number | null) {
-  return status === 'waiting for payment' || status === 'rejected' || (status == null && amount != null)
+  return status === 'waiting for payment' || status === 'rejected' || isAwaitingPayment(status, amount)
+}
+
+// 'waiting for calculation' (atau null) tapi nominalnya UDAH ada = praktisnya
+// tinggal bayar — trigger DB peserta nyetel status itu padahal nominal
+// 300rb/500rb langsung final.
+function isAwaitingPayment(status: string | null, amount: number | null) {
+  return (status == null || status === 'waiting for calculation') && amount != null && amount > 0
 }
 
 const MY_PAYMENTS_QUERY_KEY = ['payment-mine']
