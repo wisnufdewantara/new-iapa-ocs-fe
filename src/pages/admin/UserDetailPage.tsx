@@ -1,7 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../../lib/axios'
 import { usePageTitle } from '../../hooks/usePageTitle'
+import { useAuthStore } from '../../stores/authStore'
+import { toastError } from '../../lib/toast'
+import type { Role } from '../../types/role'
 
 interface PaperInfo {
   paperId: string
@@ -76,6 +79,23 @@ export function UserDetailPage() {
     enabled: !!id,
   })
 
+  const startImpersonation = useAuthStore((s) => s.startImpersonation)
+  const impersonate = useMutation({
+    mutationFn: async () =>
+      (
+        await api.post<{
+          accessToken: string
+          user: { userId: string; username: string; firstName: string; lastName: string; email: string; role: Role }
+        }>(`/users/${id}/impersonate`)
+      ).data,
+    onSuccess: ({ accessToken, user }) => {
+      startImpersonation(accessToken, user)
+      // Reload penuh — cache data admin nggak boleh kebawa ke sesi peserta.
+      window.location.assign('/dashboard')
+    },
+    onError: (err) => toastError(err, 'Gagal login sebagai pengguna ini.'),
+  })
+
   if (isLoading || !data) {
     return <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
   }
@@ -98,6 +118,19 @@ export function UserDetailPage() {
               @{data.username} · {data.role}
             </p>
           </div>
+          {data.role === 'Peserta' && (
+            <button
+              onClick={() => {
+                if (confirm(`Login sebagai ${data.firstName} ${data.lastName}? Sesi berlaku 1 jam, dan tercatat di log.`)) {
+                  impersonate.mutate()
+                }
+              }}
+              disabled={impersonate.isPending}
+              className="btn btn-outline btn-sm ml-auto"
+            >
+              {impersonate.isPending ? 'Memproses...' : 'Login sebagai Peserta Ini'}
+            </button>
+          )}
         </div>
       </div>
 

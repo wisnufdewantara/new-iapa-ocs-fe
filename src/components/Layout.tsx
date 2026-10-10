@@ -7,6 +7,15 @@ import { useAuthStore } from '../stores/authStore'
 export function Layout() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
+  const impersonator = useAuthStore((s) => s.impersonator)
+  const stopImpersonation = useAuthStore((s) => s.stopImpersonation)
+
+  // Reload penuh biar cache data (react-query) peserta nggak kebawa ke
+  // sesi admin.
+  const backToAdmin = () => {
+    stopImpersonation()
+    window.location.assign('/admin/roles')
+  }
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -23,6 +32,23 @@ export function Layout() {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {impersonator && (
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-brand-orange px-4 py-2 text-sm text-white sm:px-6">
+            <span>
+              Kamu sedang login sebagai{' '}
+              <strong>
+                {user?.firstName} {user?.lastName}
+              </strong>{' '}
+              (dibuka oleh {impersonator.user.firstName} {impersonator.user.lastName})
+            </span>
+            <button
+              onClick={backToAdmin}
+              className="rounded-md bg-white px-3 py-1 text-xs font-semibold text-brand-orange-dark hover:bg-orange-50"
+            >
+              Kembali ke akun admin
+            </button>
+          </div>
+        )}
         <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-brand-dark-surface sm:px-6">
           <div className="flex items-center gap-3">
             <button
@@ -47,8 +73,8 @@ export function Layout() {
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <ThemeToggle />
-            <button onClick={logout} className="btn btn-danger-ghost btn-sm">
-              Logout
+            <button onClick={impersonator ? backToAdmin : logout} className="btn btn-danger-ghost btn-sm">
+              {impersonator ? 'Keluar' : 'Logout'}
             </button>
           </div>
         </header>

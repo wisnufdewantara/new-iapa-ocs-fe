@@ -14,7 +14,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Halaman Syarat dan Ketentuan (ID/EN), termasuk kebijakan pembayaran non-refundable — wajib disetujui saat registrasi',
       'Admin bisa upload bukti transfer atas nama presenter/peserta (tombol Override di kartu Bukti Transfer)',
       'Peserta bisa upload bukti transfer langsung dari Dashboard (PDF/JPG/PNG), lihat lagi bukti yang sudah diupload, dan ganti bukti selama belum diverifikasi',
-      'Tombol Lihat Profil di Kelola Role',
+      'Tombol Lihat Profil di Kelola Role + Login sebagai Peserta (Admin, sesi 1 jam, tercatat di log)',
       'Presenter/peserta tahun lalu bisa daftar lagi (join atau submit paper) ke conference yang sedang berjalan; Dashboard menampilkan progress conference aktif',
       'Ikon situs (favicon) IAPA',
     ],

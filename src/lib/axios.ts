@@ -23,7 +23,15 @@ api.interceptors.response.use(
     const url: string = err.config?.url ?? ''
     const skip = SKIP_AUTO_LOGOUT_PATHS.some((p) => url.includes(p))
     if (err.response?.status === 401 && !skip) {
-      useAuthStore.getState().logout()
+      const auth = useAuthStore.getState()
+      if (auth.impersonator) {
+        // Token "login sebagai" (1 jam) habis → balik ke akun admin,
+        // reload penuh biar data peserta nggak nyangkut di layar.
+        auth.stopImpersonation()
+        window.location.assign('/admin/roles')
+      } else {
+        auth.logout()
+      }
     }
     return Promise.reject(err)
   },
