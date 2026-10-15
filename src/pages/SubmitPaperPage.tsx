@@ -29,7 +29,7 @@ interface MyPaper {
   paperStatus: string
   documentUrl: string | null
   reviewFeedback: string | null
-  feedbackUrl: string | null
+  feedback: { count: number; lastFromReviewer: boolean }
 }
 
 interface Profile {
@@ -197,19 +197,9 @@ export function SubmitPaperPage() {
               Lihat dokumen
             </a>
           )}
-          {myPaper.feedbackUrl && (
-            <a href={myPaper.feedbackUrl} target="_blank" rel="noreferrer" className="btn btn-outline mt-3 ml-2">
-              Download Feedback Reviewer
-            </a>
-          )}
-          {myPaper.reviewFeedback && (
-            <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-                Catatan dari Reviewer
-              </p>
-              <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200">{myPaper.reviewFeedback}</p>
-            </div>
-          )}
+          <Link to={`/dashboard/feedback/${myPaper.paperId}`} className="btn btn-outline mt-3 ml-2">
+            {myPaper.feedback.count > 0 ? `Lihat Feedback & Balas (${myPaper.feedback.count})` : 'Feedback Reviewer'}
+          </Link>
         </div>
       </div>
     )

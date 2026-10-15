@@ -10,9 +10,10 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-10-15',
     items: [
-      'Send Feedback di Review Paper: upload file feedback reviewer (PDF/DOC/DOCX) + email otomatis ke penulis',
-      'Penulis bisa Download Feedback Reviewer dari Dashboard & Submit Paper (termasuk feedback lama dari OCS lawas)',
-      'Template email "Feedback Paper dari Reviewer" bisa diubah di Pengaturan',
+      'Halaman Detail Paper + thread Feedback: reviewer & penulis bisa balas-balasan (teks + lampiran PDF/DOC/DOCX)',
+      'Di sisi penulis, pengirim feedback tampil sebagai "Tim Reviewer"; laporan "Feedback Paper" menampilkan reviewer aslinya',
+      'Email notifikasi ke penulis tiap ada feedback baru; badge "Balasan baru" di Review Paper',
+      'Feedback lama (termasuk dari OCS lawas) tampil sebagai pesan pertama di thread',
     ],
   },
   {

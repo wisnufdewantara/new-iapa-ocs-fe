@@ -19,6 +19,7 @@ interface ReportColumns {
   papers: ReportColumn[]
   payments: ReportColumn[]
   participants: ReportColumn[]
+  feedback: ReportColumn[]
 }
 
 type ReportKey = keyof ReportColumns
@@ -42,6 +43,12 @@ const REPORTS: { key: ReportKey; label: string; desc: string; path: string }[] =
     label: 'Rekap Peserta',
     desc: 'Daftar peserta yang join sebuah conference.',
     path: '/report/participants/csv',
+  },
+  {
+    key: 'feedback',
+    label: 'Feedback Paper',
+    desc: 'Riwayat feedback reviewer ↔ penulis per paper, termasuk siapa reviewer yang mengirim.',
+    path: '/report/feedback/csv',
   },
 ]
 

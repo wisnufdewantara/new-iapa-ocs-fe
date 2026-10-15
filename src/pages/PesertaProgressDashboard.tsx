@@ -12,7 +12,7 @@ interface MyPaper {
   paperStatus: string | null
   documentUrl: string | null
   reviewFeedback: string | null
-  feedbackUrl: string | null
+  feedback: { count: number; lastFromReviewer: boolean }
 }
 
 interface MyParticipant {
@@ -261,24 +261,16 @@ export function PesertaProgressDashboard() {
           state={reviewState}
           links={loaLinks}
         />
-        {paper.reviewFeedback && (
-          <div className="-mt-4 mb-6 ml-6 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-              Catatan dari Reviewer
-            </p>
-            <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200">{paper.reviewFeedback}</p>
-          </div>
-        )}
-        {paper.feedbackUrl && (
-          <a
-            href={paper.feedbackUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="-mt-4 mb-6 ml-6 inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-          >
-            ⬇ Download Feedback Reviewer
-          </a>
-        )}
+        <div className="-mt-4 mb-6 ml-6">
+          <Link to={`/dashboard/feedback/${paper.paperId}`} className="btn btn-outline btn-sm">
+            {paper.feedback.count > 0 ? `Lihat Feedback & Balas (${paper.feedback.count})` : 'Feedback Reviewer'}
+          </Link>
+          {paper.feedback.count > 0 && paper.feedback.lastFromReviewer && (
+            <span className="ml-2 rounded-full bg-brand-orange px-2 py-0.5 text-[10px] font-semibold text-white">
+              Feedback baru dari Tim Reviewer
+            </span>
+          )}
+        </div>
         <Step
           title="Pembayaran"
           desc={

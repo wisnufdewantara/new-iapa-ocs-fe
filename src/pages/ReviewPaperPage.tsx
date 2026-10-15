@@ -7,7 +7,6 @@ import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useMenu } from '../hooks/useMenu'
 import { toastSuccess, toastError } from '../lib/toast'
-import { SendFeedbackModal } from '../components/SendFeedbackModal'
 
 interface Conference {
   conference_id: string
@@ -18,7 +17,8 @@ interface Paper {
   paperId: string
   paperTitle: string
   documentUrl: string | null
-  feedbackUrl: string | null
+  feedbackCount: number
+  feedbackAwaitingReply: boolean
   conferenceStatus: 'Waiting' | 'Accepted' | 'Rejected'
   paymentId: string | null
   type: string | null
@@ -40,7 +40,6 @@ export function ReviewPaperPage() {
   const [conferenceId, setConferenceId] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | Paper['conferenceStatus']>('all')
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [feedbackFor, setFeedbackFor] = useState<Paper | null>(null)
   // Link "Lihat Detail & Override" cuma masuk akal buat yang emang punya
   // akses ke Kelola Pembayaran — Reviewer nggak punya, jadi disembunyiin
   // daripada nampilin link yang bakal ke-block sama RouteAccessGate.
@@ -59,7 +58,7 @@ export function ReviewPaperPage() {
   })
 
   const statusMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       paperId,
       status,
       reviewFeedback,
@@ -67,7 +66,16 @@ export function ReviewPaperPage() {
       paperId: string
       status: Paper['conferenceStatus']
       reviewFeedback?: string
-    }) => api.patch(`/papers/${paperId}/status`, { conferenceStatus: status, reviewFeedback }),
+    }) => {
+      await api.patch(`/papers/${paperId}/status`, { conferenceStatus: status })
+      // Catatan masuk thread feedback lewat endpoint thread (bukan field
+      // status) — biar penulis dapet email notifikasi juga.
+      if (reviewFeedback) {
+        const form = new FormData()
+        form.append('body', reviewFeedback)
+        await api.post(`/paper-feedback/reviewer/${paperId}/messages`, form)
+      }
+    },
     onSuccess: (_data, { status }) => {
       queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] })
       const label = status === 'Accepted' ? 'accept' : status === 'Rejected' ? 'reject' : 'batalkan'
@@ -81,7 +89,7 @@ export function ReviewPaperPage() {
   // kirim feedback baru, bukan batal decision-nya).
   const decideWithFeedback = (paperId: string, status: 'Accepted' | 'Rejected') => {
     const feedback = window.prompt(
-      `Catatan/feedback untuk penulis (opsional, kosongkan kalau nggak ada):`,
+      `Catatan/feedback untuk penulis (opsional, masuk ke thread Feedback & dikirim ke email penulis):`,
       '',
     )
     if (feedback === null) return
@@ -184,23 +192,18 @@ export function ReviewPaperPage() {
       {
         accessorKey: 'paperTitle',
         header: 'Judul Paper',
-        cell: ({ row }) =>
-          row.original.documentUrl ? (
-            // SENGAJA bukan .btn — itu punya white-space:nowrap yang cocok
-            // buat label tombol pendek, tapi bikin judul paper (kalimat
-            // panjang) numpuk jadi 1 baris raksasa dan dorong kolom lain
-            // keluar layar. Link biasa yang boleh wrap.
-            <a
-              href={row.original.documentUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium text-blue-700 underline hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
-            >
-              {row.original.paperTitle}
-            </a>
-          ) : (
-            <span className="font-medium">{row.original.paperTitle}</span>
-          ),
+        // Judul → halaman detail (info paper + thread feedback); dokumen
+        // paper dibuka dari halaman detail. SENGAJA bukan .btn — itu
+        // white-space:nowrap, bikin judul panjang dorong kolom lain keluar
+        // layar. Link biasa yang boleh wrap.
+        cell: ({ row }) => (
+          <Link
+            to={`/papers/review/${row.original.paperId}`}
+            className="font-medium text-blue-700 underline hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
+          >
+            {row.original.paperTitle}
+          </Link>
+        ),
       },
       {
         id: 'presenterName',
@@ -227,7 +230,20 @@ export function ReviewPaperPage() {
         enableSorting: false,
         enableGlobalFilter: false,
         cell: ({ row }) => (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <Link to={`/papers/review/${row.original.paperId}`} className="btn btn-outline btn-sm">
+              Detail & Feedback
+              {row.original.feedbackCount > 0 && (
+                <span className="ml-1 rounded-full bg-gray-200 px-1.5 text-[10px] text-gray-700 dark:bg-white/10 dark:text-gray-200">
+                  {row.original.feedbackCount}
+                </span>
+              )}
+            </Link>
+            {row.original.feedbackAwaitingReply && (
+              <span className="whitespace-nowrap rounded-full bg-brand-orange px-2 py-0.5 text-[10px] font-semibold text-white">
+                Balasan baru
+              </span>
+            )}
             {canManagePayment && row.original.paymentId && (
               <Link to={`/payment/manage/${row.original.paymentId}`} className="btn btn-outline btn-sm">
                 Lihat Detail & Override
@@ -248,16 +264,6 @@ export function ReviewPaperPage() {
               Reject
             </button>
             {row.original.conferenceStatus !== 'Waiting' && (
-              <button onClick={() => setFeedbackFor(row.original)} className="btn btn-outline btn-sm">
-                {row.original.feedbackUrl ? 'Ganti Feedback' : 'Send Feedback'}
-              </button>
-            )}
-            {row.original.feedbackUrl && (
-              <a href={row.original.feedbackUrl} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-                Lihat Feedback
-              </a>
-            )}
-            {row.original.conferenceStatus !== 'Waiting' && (
               <button
                 disabled={statusMutation.isPending}
                 onClick={() => handleCancelDecision(row.original.paperId, row.original.paperTitle)}
@@ -277,15 +283,6 @@ export function ReviewPaperPage() {
     <div>
       <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Review Paper</h1>
 
-      {feedbackFor && (
-        <SendFeedbackModal
-          paperId={feedbackFor.paperId}
-          paperTitle={feedbackFor.paperTitle}
-          existingFeedbackUrl={feedbackFor.feedbackUrl}
-          onClose={() => setFeedbackFor(null)}
-          onSent={() => queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] })}
-        />
-      )}
 
       <div className="mb-4 flex flex-wrap gap-4">
         <div>

@@ -4,6 +4,8 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminGate } from './components/AdminGate'
 import { RouteAccessGate } from './components/RouteAccessGate'
 import { ChangelogPage } from './pages/ChangelogPage'
+import { PaperReviewDetailPage } from './pages/PaperReviewDetailPage'
+import { AuthorFeedbackPage } from './pages/AuthorFeedbackPage'
 import { HomePage } from './pages/HomePage'
 import { EventHistoryPage } from './pages/EventHistoryPage'
 import { EventDetailPage } from './pages/EventDetailPage'
@@ -101,10 +103,23 @@ const certTemplateEditorRoute = { path: '/certificate-templates/:id', element: <
 // semua orang) — lihat pengecualian di RouteAccessGate.
 const changelogRoute = { path: '/changelog', element: <ChangelogPage /> }
 
+// Detail paper + thread feedback (sisi reviewer) dan thread feedback sisi
+// penulis — bukan item menu, ke-cover RouteAccessGate lewat induknya
+// (/papers/review dan /dashboard).
+const paperReviewDetailRoute = { path: '/papers/review/:paperId', element: <PaperReviewDetailPage /> }
+const authorFeedbackRoute = { path: '/dashboard/feedback/:paperId', element: <AuthorFeedbackPage /> }
+
 const domainRoutes = allPaths
   .filter((path) => !path.startsWith('/admin'))
   .map((path) => ({ path, element: builtRoutes[path] ?? <ComingSoonPage /> }))
-  .concat([paymentDetailRoute, participantPaymentDetailRoute, certTemplateEditorRoute, changelogRoute])
+  .concat([
+    paymentDetailRoute,
+    participantPaymentDetailRoute,
+    certTemplateEditorRoute,
+    changelogRoute,
+    paperReviewDetailRoute,
+    authorFeedbackRoute,
+  ])
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
