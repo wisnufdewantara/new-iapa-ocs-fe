@@ -16,6 +16,7 @@ interface ParticipantDetail {
   paymentStatus: string | null
   sentInvoice: boolean
   proofUrl: string | null
+  proofIsImage?: boolean
   senderName: string | null
   transferDate: string | null
 }
@@ -119,7 +120,7 @@ export function ParticipantPaymentDetailPage() {
             rel="noreferrer"
             className="inline-block max-w-xs rounded-md border border-gray-200 p-3 hover:border-blue-400 dark:border-white/10 dark:hover:border-blue-400"
           >
-            {isImageUrl(data.proofUrl) ? (
+            {(data.proofIsImage ?? isImageUrl(data.proofUrl)) ? (
               <img src={data.proofUrl} alt="Bukti transfer" className="mb-2 h-32 w-full rounded object-cover" />
             ) : (
               <div className="mb-2 flex h-32 w-full items-center justify-center rounded bg-gray-100 text-xs text-gray-500 dark:bg-white/5 dark:text-gray-400">

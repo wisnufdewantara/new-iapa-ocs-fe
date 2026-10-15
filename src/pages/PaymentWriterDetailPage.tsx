@@ -33,6 +33,7 @@ interface NewWriterDraft {
 interface PaymentProof {
   proofId: string
   proofUrl: string
+  isImage?: boolean
   senderName: string | null
   transferDate: string | null
   uploadDate: string | null
@@ -270,7 +271,7 @@ export function PaymentWriterDetailPage() {
                 rel="noreferrer"
                 className="block rounded-md border border-gray-200 p-3 hover:border-blue-400 dark:border-white/10 dark:hover:border-blue-400"
               >
-                {isImageUrl(p.proofUrl) ? (
+                {(p.isImage ?? isImageUrl(p.proofUrl)) ? (
                   <img src={p.proofUrl} alt="Bukti transfer" className="mb-2 h-32 w-full rounded object-cover" />
                 ) : (
                   <div className="mb-2 flex h-32 w-full items-center justify-center rounded bg-gray-100 text-xs text-gray-500 dark:bg-white/5 dark:text-gray-400">
