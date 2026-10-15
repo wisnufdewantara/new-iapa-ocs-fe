@@ -7,6 +7,7 @@ import { DataTable } from '../components/DataTable'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useMenu } from '../hooks/useMenu'
 import { toastSuccess, toastError } from '../lib/toast'
+import { SendFeedbackModal } from '../components/SendFeedbackModal'
 
 interface Conference {
   conference_id: string
@@ -17,6 +18,7 @@ interface Paper {
   paperId: string
   paperTitle: string
   documentUrl: string | null
+  feedbackUrl: string | null
   conferenceStatus: 'Waiting' | 'Accepted' | 'Rejected'
   paymentId: string | null
   type: string | null
@@ -38,6 +40,7 @@ export function ReviewPaperPage() {
   const [conferenceId, setConferenceId] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | Paper['conferenceStatus']>('all')
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [feedbackFor, setFeedbackFor] = useState<Paper | null>(null)
   // Link "Lihat Detail & Override" cuma masuk akal buat yang emang punya
   // akses ke Kelola Pembayaran — Reviewer nggak punya, jadi disembunyiin
   // daripada nampilin link yang bakal ke-block sama RouteAccessGate.
@@ -245,6 +248,16 @@ export function ReviewPaperPage() {
               Reject
             </button>
             {row.original.conferenceStatus !== 'Waiting' && (
+              <button onClick={() => setFeedbackFor(row.original)} className="btn btn-outline btn-sm">
+                {row.original.feedbackUrl ? 'Ganti Feedback' : 'Send Feedback'}
+              </button>
+            )}
+            {row.original.feedbackUrl && (
+              <a href={row.original.feedbackUrl} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+                Lihat Feedback
+              </a>
+            )}
+            {row.original.conferenceStatus !== 'Waiting' && (
               <button
                 disabled={statusMutation.isPending}
                 onClick={() => handleCancelDecision(row.original.paperId, row.original.paperTitle)}
@@ -263,6 +276,16 @@ export function ReviewPaperPage() {
   return (
     <div>
       <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Review Paper</h1>
+
+      {feedbackFor && (
+        <SendFeedbackModal
+          paperId={feedbackFor.paperId}
+          paperTitle={feedbackFor.paperTitle}
+          existingFeedbackUrl={feedbackFor.feedbackUrl}
+          onClose={() => setFeedbackFor(null)}
+          onSent={() => queryClient.invalidateQueries({ queryKey: ['papers', conferenceId] })}
+        />
+      )}
 
       <div className="mb-4 flex flex-wrap gap-4">
         <div>

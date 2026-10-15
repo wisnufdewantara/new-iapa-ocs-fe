@@ -12,6 +12,7 @@ interface MyPaper {
   paperStatus: string | null
   documentUrl: string | null
   reviewFeedback: string | null
+  feedbackUrl: string | null
 }
 
 interface MyParticipant {
@@ -267,6 +268,16 @@ export function PesertaProgressDashboard() {
             </p>
             <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200">{paper.reviewFeedback}</p>
           </div>
+        )}
+        {paper.feedbackUrl && (
+          <a
+            href={paper.feedbackUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="-mt-4 mb-6 ml-6 inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+          >
+            ⬇ Download Feedback Reviewer
+          </a>
         )}
         <Step
           title="Pembayaran"

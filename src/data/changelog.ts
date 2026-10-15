@@ -8,6 +8,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-10-15',
+    items: [
+      'Send Feedback di Review Paper: upload file feedback reviewer (PDF/DOC/DOCX) + email otomatis ke penulis',
+      'Penulis bisa Download Feedback Reviewer dari Dashboard & Submit Paper (termasuk feedback lama dari OCS lawas)',
+      'Template email "Feedback Paper dari Reviewer" bisa diubah di Pengaturan',
+    ],
+  },
+  {
     date: '2026-10-09',
     items: [
       'Sistem baru resmi pindah ke ocs2.iapa.or.id (dev-ocs.iapa.or.id dialihkan otomatis)',

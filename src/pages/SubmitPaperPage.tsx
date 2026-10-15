@@ -29,6 +29,7 @@ interface MyPaper {
   paperStatus: string
   documentUrl: string | null
   reviewFeedback: string | null
+  feedbackUrl: string | null
 }
 
 interface Profile {
@@ -194,6 +195,11 @@ export function SubmitPaperPage() {
               className="btn btn-ghost mt-3"
             >
               Lihat dokumen
+            </a>
+          )}
+          {myPaper.feedbackUrl && (
+            <a href={myPaper.feedbackUrl} target="_blank" rel="noreferrer" className="btn btn-outline mt-3 ml-2">
+              Download Feedback Reviewer
             </a>
           )}
           {myPaper.reviewFeedback && (
