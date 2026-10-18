@@ -10,6 +10,12 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-10-18',
     items: [
+      'v1.0.1 — OCS baru sepenuhnya mandiri: sinkronisasi dengan OCS lawas (tombol sync, tarik bukti otomatis, push status) dihapus',
+    ],
+  },
+  {
+    date: '2026-10-18',
+    items: [
       'Rilis 1.0 — OCS baru resmi keluar dari Beta',
       'Tampilan baru bernuansa IAPA: sidebar navy dengan ikon di tiap menu, Dashboard Keuangan/Statistik/Dashboard bertema IAPA (navy & oranye), dan mode gelap yang dirancang ulang',
       'Dashboard Keuangan (Admin & Admin Keuangan): tagihan vs terkumpul, menunggu verifikasi, belum bayar, presenter vs peserta, member vs non-member, tren verifikasi mingguan',
