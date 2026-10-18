@@ -1,5 +1,7 @@
 // Cermin PERMISSION_CATALOG di backend (newocs-be/src/roles/permission-catalog.constant.ts).
-// Nambah modul/aksi baru? Samain manual di kedua tempat.
+// Nambah modul/aksi baru? Samain manual di kedua tempat. Aksi yang belum
+// ada di sini nggak muncul checkbox-nya di halaman Role & Permission —
+// grant-nya cuma bisa lewat SQL, jadi jaga dua file ini tetap sama.
 export const PERMISSION_CATALOG: Record<string, string[]> = {
   schedule: ['manage'],
   conference: ['create', 'update', 'manage_awards'],
@@ -7,12 +9,18 @@ export const PERMISSION_CATALOG: Record<string, string[]> = {
   attendance: ['manage'],
   assign_reviewer: ['manage'],
   settings: ['manage'],
-  users: ['manage'],
+  users: ['manage', 'impersonate'],
   roles: ['manage'],
   loa: ['manage'],
-  certificate: ['manage', 'manage_awards'],
+  certificate: ['manage', 'manage_awards', 'manage_templates'],
   admin_gate: ['verify'],
-  payment: ['submit', 'verify', 'manage_types'],
+  payment: ['submit', 'verify', 'manage_types', 'manage_invoices'],
+  participant: ['join'],
+  developer: ['view', 'sync'],
+  // finance_dashboard = Dashboard Keuangan (/finance), statistics =
+  // Statistik (/statistics) — dipisah dari download biar Manager bisa
+  // lihat statistik tanpa ikut lihat angka uang.
+  report: ['download', 'finance_dashboard', 'statistics'],
 }
 
 export const MODULE_LABEL: Record<string, string> = {
@@ -28,4 +36,7 @@ export const MODULE_LABEL: Record<string, string> = {
   certificate: 'Sertifikat',
   admin_gate: 'Admin Gate',
   payment: 'Pembayaran',
+  participant: 'Join Conference (Peserta)',
+  developer: 'Developer',
+  report: 'Laporan & Dashboard',
 }

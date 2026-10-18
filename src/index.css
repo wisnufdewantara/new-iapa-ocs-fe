@@ -150,6 +150,70 @@ input[type='file'] {
   color: #4ade80;
 }
 
+/* Token warna grafik dashboard (Dashboard Keuangan, Statistik, kartu aksi
+   di Dashboard). Dipasang di scope .viz-root, bukan global, biar warna
+   grafik nggak bocor ke halaman lain. Kategorikal s1-s4 urutannya TETAP
+   (lolos cek buta warna buat surface kartu #ffffff & #132544) — jangan
+   diacak/ditambah hue baru; s2-s4 di mode terang kontrasnya < 3:1, jadi
+   wajib ada label teks / tabel di sebelahnya. Warna status (good/warning/
+   serious/critical) KHUSUS buat status pembayaran/paper, selalu ditemani
+   ikon + label, nggak boleh dipakai buat "seri ke-4". --viz-on-* = warna
+   teks yang aman kalau labelnya ditaruh DI DALAM blok warna tsb. */
+.viz-root {
+  --viz-surface: #ffffff;
+  --viz-ink: #1f2937;
+  --viz-ink-2: #4b5563;
+  --viz-muted: #6b7280;
+  --viz-grid: #e5e7eb;
+  --viz-axis: #d1d5db;
+  --viz-tooltip-bg: #ffffff;
+  --viz-tooltip-border: rgb(11 11 11 / 0.12);
+
+  --viz-s1: #2a78d6;
+  --viz-s2: #eb6834;
+  --viz-s3: #1baf7a;
+  --viz-s4: #eda100;
+  --viz-on-s1: #ffffff;
+  --viz-on-s2: #0b0b0b;
+  --viz-on-s3: #0b0b0b;
+  --viz-on-s4: #0b0b0b;
+
+  --viz-good: #0ca30c;
+  --viz-warning: #fab219;
+  --viz-serious: #ec835a;
+  --viz-critical: #d03b3b;
+  --viz-on-good: #0b0b0b;
+  --viz-on-warning: #0b0b0b;
+  --viz-on-serious: #0b0b0b;
+  --viz-on-critical: #ffffff;
+
+  /* Abu-abu buat "belum dihitung" / "lainnya" — bukan status baik/buruk */
+  --viz-neutral: #b4b8bf;
+  --viz-neutral-2: #7c828c;
+  --viz-on-neutral: #0b0b0b;
+  --viz-on-neutral-2: #0b0b0b;
+}
+.dark .viz-root {
+  --viz-surface: #132544;
+  --viz-ink: #f3f4f6;
+  --viz-ink-2: #d1d5db;
+  --viz-muted: #9ca3af;
+  --viz-grid: #24365a;
+  --viz-axis: #3a4d72;
+  --viz-tooltip-bg: #0d1b30;
+  --viz-tooltip-border: rgb(255 255 255 / 0.14);
+
+  --viz-s1: #3987e5;
+  --viz-s2: #d95926;
+  --viz-s3: #199e70;
+  --viz-s4: #c98500;
+  --viz-on-s1: #0b0b0b;
+
+  --viz-neutral: #5b6b85;
+  --viz-neutral-2: #8a97ab;
+  --viz-on-neutral: #ffffff;
+}
+
 @keyframes fade-slide-up {
   from {
     opacity: 0;

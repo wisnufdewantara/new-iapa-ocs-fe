@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
+import type { SummaryStats } from '../types/stats'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuthStore } from '../stores/authStore'
 import { PesertaProgressDashboard } from './PesertaProgressDashboard'
@@ -30,9 +32,75 @@ export function DashboardPage() {
           <PesertaProgressDashboard />
         </div>
       ) : (
-        <ConferenceListDashboard />
+        <div className="flex flex-col gap-6">
+          <ActionSummaryCards />
+          <ConferenceListDashboard />
+        </div>
       )}
     </div>
+  )
+}
+
+// Kartu "yang perlu ditindaklanjuti" buat role non-Peserta. Item yang
+// muncul sudah difilter backend sesuai permission role (bukan hardcode
+// nama role di sini — role custom juga kebagian). Isinya cuma hitungan,
+// nggak ada nama/data pribadi. Gagal muat / kosong = nggak tampil apa-apa,
+// daftar conference di bawahnya tetap jalan.
+function ActionSummaryCards() {
+  // Kartunya beda per role & cache React Query nggak dibersihin pas
+  // logout/impersonate — key harus ikut user, kalau nggak login ulang
+  // sebagai role lain masih lihat kartu role sebelumnya (pola useMenu).
+  const userId = useAuthStore((s) => s.user?.userId)
+  const role = useAuthStore((s) => s.user?.role)
+  const { data } = useQuery({
+    queryKey: ['stats-summary', userId, role],
+    queryFn: async () => (await api.get<SummaryStats>('/stats/summary')).data,
+    enabled: !!role,
+    staleTime: 60_000,
+  })
+  if (!data || data.items.length === 0) return null
+
+  return (
+    <section aria-labelledby="action-summary-title">
+      <h2
+        id="action-summary-title"
+        className="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500"
+      >
+        Perlu ditindaklanjuti · conference aktif
+      </h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {data.items.map((item) => {
+          // Yang nol tetap tampil tapi diredam — biar kelihatan "beres",
+          // bukan hilang dan bikin bingung kartunya ke mana.
+          const done = item.count === 0
+          return (
+            <Link
+              key={item.key}
+              to={item.path}
+              className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-brand-navy/40 dark:border-white/10 dark:bg-brand-dark-surface dark:hover:border-brand-orange/40"
+            >
+              <span
+                className={`min-w-[2.5ch] text-3xl font-semibold ${
+                  done ? 'text-gray-300 dark:text-gray-600' : 'text-gray-800 dark:text-gray-100'
+                }`}
+              >
+                {item.count.toLocaleString('id-ID')}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span
+                  className={`block text-sm ${done ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}
+                >
+                  {item.label}
+                </span>
+                <span className="mt-0.5 block text-xs text-brand-navy dark:text-brand-orange">
+                  {done ? 'Beres' : 'Buka →'}
+                </span>
+              </span>
+            </Link>
+          )
+        })}
+      </div>
+    </section>
   )
 }
 

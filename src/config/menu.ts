@@ -14,11 +14,24 @@ export interface MenuGroup {
 // bukan halaman terpisah — lihat PaymentPage. Visibilitas per role
 // diatur dari database (role_menu_items, lihat /admin/permissions),
 // bukan hardcode di sini lagi — file ini cuma katalog label+path.
+//
+// Grup 'Ringkasan' sengaja paling atas: halaman yang dibuka buat "lihat
+// keadaan" (dashboard, keuangan, statistik, laporan) dikumpulin jadi satu.
+// PATH-nya jangan diubah waktu mindah grup — grant di role_menu_items
+// nyimpen path, bukan nama grup.
 export const MENU: MenuGroup[] = [
+  {
+    group: 'Ringkasan',
+    items: [
+      { label: 'Dashboard', path: '/dashboard' },
+      { label: 'Dashboard Keuangan', path: '/finance' },
+      { label: 'Statistik', path: '/statistics' },
+      { label: 'Download Laporan', path: '/report' },
+    ],
+  },
   {
     group: 'Utama',
     items: [
-      { label: 'Dashboard', path: '/dashboard' },
       { label: 'Profil Saya', path: '/profile' },
       { label: 'Panduan Penggunaan', path: '/guide' },
     ],
@@ -59,10 +72,6 @@ export const MENU: MenuGroup[] = [
       { label: 'Pembayaran Saya', path: '/payment' },
       { label: 'Kelola Pembayaran', path: '/payment/manage' },
     ],
-  },
-  {
-    group: 'Laporan',
-    items: [{ label: 'Download Laporan', path: '/report' }],
   },
   {
     group: 'Admin',

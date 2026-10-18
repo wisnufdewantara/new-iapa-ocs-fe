@@ -39,6 +39,8 @@ import { PaymentWriterDetailPage } from './pages/PaymentWriterDetailPage'
 import { ParticipantPaymentDetailPage } from './pages/ParticipantPaymentDetailPage'
 import { JoinConferencePage } from './pages/JoinConferencePage'
 import { ReportPage } from './pages/ReportPage'
+import { FinanceDashboardPage } from './pages/FinanceDashboardPage'
+import { StatisticsPage } from './pages/StatisticsPage'
 import { GuidePage } from './pages/GuidePage'
 import { FunctionalTestPage } from './pages/FunctionalTestPage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
@@ -63,6 +65,8 @@ const builtRoutes: Record<string, React.ReactNode> = {
   '/payment': <PaymentPage />,
   '/payment/manage': <PaymentManagementPage />,
   '/report': <ReportPage />,
+  '/finance': <FinanceDashboardPage />,
+  '/statistics': <StatisticsPage />,
   '/admin/settings': <SettingsPage />,
   '/admin/roles': <UserManagementPage />,
   '/admin/permissions': <RolePermissionsPage />,

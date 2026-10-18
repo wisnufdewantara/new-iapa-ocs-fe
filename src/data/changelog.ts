@@ -8,6 +8,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-10-18',
+    items: [
+      'Dashboard Keuangan (Admin & Admin Keuangan): tagihan vs terkumpul, menunggu verifikasi, belum bayar, presenter vs peserta, member vs non-member, tren verifikasi mingguan',
+      'Daftar "Belum bayar" lengkap dengan email, nomor HP & link WhatsApp buat nagih, plus antrean bukti yang menunggu verifikasi',
+      'Halaman Statistik (Admin & Manager): paper per status/sub tema/tipe, kesehatan review, pendaftaran per minggu, afiliasi & negara, presensi',
+      'Dashboard admin sekarang menampilkan kartu "perlu tindakan" (bukti menunggu verifikasi, balasan penulis, paper belum direview)',
+      'Sidebar dirapikan: grup Ringkasan baru + grup menu bisa dilipat',
+    ],
+  },
+  {
     date: '2026-10-15',
     items: [
       'Halaman Detail Paper + thread Feedback: reviewer & penulis bisa balas-balasan (teks + lampiran PDF/DOC/DOCX)',

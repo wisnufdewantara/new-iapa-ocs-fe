@@ -3,8 +3,8 @@
 // (belum ada rilis semver formal) jadi labelnya lebih santai dulu.
 // Naikkan 'number' pas ada rilis besar, update 'date' ke tanggal itu.
 export const APP_VERSION = {
-  number: '0.4.0',
-  date: '2026-10-15',
+  number: '0.5.0',
+  date: '2026-10-18',
   get label() {
     const d = new Date(this.date)
     const yymmdd = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0')
