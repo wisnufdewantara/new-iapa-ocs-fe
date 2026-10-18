@@ -10,6 +10,8 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-10-18',
     items: [
+      'Rilis 1.0 — OCS baru resmi keluar dari Beta',
+      'Tampilan baru bernuansa IAPA: sidebar navy dengan ikon di tiap menu, Dashboard Keuangan/Statistik/Dashboard bertema IAPA (navy & oranye), dan mode gelap yang dirancang ulang',
       'Dashboard Keuangan (Admin & Admin Keuangan): tagihan vs terkumpul, menunggu verifikasi, belum bayar, presenter vs peserta, member vs non-member, tren verifikasi mingguan',
       'Daftar "Belum bayar" lengkap dengan email, nomor HP & link WhatsApp buat nagih, plus antrean bukti yang menunggu verifikasi',
       'Halaman Statistik (Admin & Manager): paper per status/sub tema/tipe, kesehatan review, pendaftaran per minggu, afiliasi & negara, presensi',

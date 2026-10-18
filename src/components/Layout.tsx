@@ -3,6 +3,22 @@ import { Link, Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
 import { useAuthStore } from '../stores/authStore'
+import markMask from '../assets/iapa-mark-mask.png'
+
+// Watermark peta+huruf IAPA di belakang konten. Pakai mask-image (siluet
+// hitam iapa-mark-mask.png) + background-color, bukan <img> logo — jadi
+// warnanya bisa diatur per tema (navy 5% di terang, putih 3% di gelap)
+// tanpa nyiapin dua file gambar.
+const WATERMARK_MASK = {
+  maskImage: `url(${markMask})`,
+  WebkitMaskImage: `url(${markMask})`,
+  maskSize: 'contain',
+  WebkitMaskSize: 'contain',
+  maskRepeat: 'no-repeat',
+  WebkitMaskRepeat: 'no-repeat',
+  maskPosition: 'right bottom',
+  WebkitMaskPosition: 'right bottom',
+} as const
 
 export function Layout() {
   const user = useAuthStore((s) => s.user)
@@ -19,7 +35,7 @@ export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-brand-dark">
+    <div className="flex min-h-screen bg-iapa-page dark:bg-brand-dark">
       <Sidebar open={sidebarOpen} onNavigate={() => setSidebarOpen(false)} />
 
       {/* Backdrop, cuma muncul di mobile pas sidebar dibuka */}
@@ -78,7 +94,17 @@ export function Layout() {
             </button>
           </div>
         </header>
-        <main className="min-w-0 flex-1 p-4 sm:p-6">
+        {/* isolate = stacking context sendiri, jadi watermark (-z-10) duduk
+            di atas latar halaman tapi DI BAWAH kartu-kartu konten, dan
+            pointer-events-none biar nggak pernah nyolong klik. Fixed di
+            pojok kanan bawah viewport; lebarnya ~60% area konten (di md+
+            dikurangi lebar sidebar 16rem), jadi nggak bikin scroll samping. */}
+        <main className="relative isolate min-w-0 flex-1 p-4 sm:p-6">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none fixed right-4 bottom-4 -z-10 aspect-[824/293] w-[60vw] bg-iapa-navy/5 md:right-8 md:bottom-8 md:w-[calc((100vw-16rem)*0.6)] dark:bg-white/[0.03]"
+            style={WATERMARK_MASK}
+          />
           <Outlet />
         </main>
       </div>

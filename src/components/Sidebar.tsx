@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { MENU } from '../config/menu'
 import { useMenu } from '../hooks/useMenu'
 import { APP_VERSION } from '../version'
 import { LegacySyncButton } from './LegacySyncButton'
+import { MenuIcon } from '../config/menuIcons'
 import logo from '../assets/logo-iapa.png'
 
 // Grup yang dilipat user, disimpan per browser. Dibungkus try/catch
@@ -49,6 +50,10 @@ interface SidebarProps {
 // Visibilitas menu sekarang dari role_menu_items di database (lewat
 // useMenu), bukan lagi filter statis roles: Role[] di menu.ts — itemnya
 // (label/path/grup) tetap dari MENU, cuma yang nge-filter beda.
+//
+// Tampilan (rilis 1.0): latar navy IAPA (dark: setingkat lebih gelap dari
+// halaman), tiap item ada ikon, item aktif = pil oranye dengan teks navy
+// tebal — teks putih di atas oranye nggak lolos kontras, navy-deep 6.4:1.
 export function Sidebar({ open, onNavigate }: SidebarProps) {
   const role = useAuthStore((s) => s.user?.role)
   const { data: allowedPaths } = useMenu()
@@ -61,11 +66,16 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
     items: group.items.filter((item) => allowed.has(item.path)),
   })).filter((group) => group.items.length > 0)
 
+  // Satu-satunya item aktif = path terpanjang yang cocok. NavLink sendiri
+  // nganggap /payment aktif juga di /payment/manage, jadi Admin dapet dua
+  // pil oranye + dua aria-current — makanya dihitung manual di sini.
+  const activeHit = groups
+    .flatMap((g) => g.items.filter((i) => matchesPath(pathname, i.path)).map((i) => ({ group: g.group, path: i.path })))
+    .sort((a, b) => b.path.length - a.path.length)[0]
+  const activePath = activeHit?.path
   // Grup yang berisi halaman aktif selalu kebuka, walau pernah dilipat —
   // biar user nggak "kehilangan" posisi dia di menu.
-  const activeGroup = groups
-    .flatMap((g) => g.items.filter((i) => matchesPath(pathname, i.path)).map((i) => ({ group: g.group, len: i.path.length })))
-    .sort((a, b) => b.len - a.len)[0]?.group
+  const activeGroup = activeHit?.group
 
   const toggleGroup = (name: string) => {
     setCollapsed((prev) => {
@@ -79,14 +89,19 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col border-r border-gray-200 bg-white transition-transform duration-200 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 dark:border-white/10 dark:bg-brand-dark-surface ${
+      className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col bg-iapa-navy text-white transition-transform duration-200 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 dark:border-r dark:border-white/5 dark:bg-iapa-sidebar-dark ${
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <Link to="/" className="block shrink-0 px-4 py-5">
-        <img src={logo} alt="IAPA" className="h-8 w-auto" />
+      {/* Logo full warna di atas "pelat" putih — peta navy-nya bakal
+          hilang kalau ditaruh langsung di latar navy sidebar. */}
+      <Link
+        to="/"
+        className="mx-3 mt-4 mb-4 flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 shadow-sm outline-hidden focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-iapa-orange"
+      >
+        <img src={logo} alt="IAPA" className="h-auto w-full max-w-[11rem]" />
       </Link>
-      <nav className="flex-1 overflow-y-auto px-2 pb-6">
+      <nav className="flex-1 overflow-y-auto px-3 pb-6 [scrollbar-color:rgb(255_255_255/0.25)_transparent]">
         {groups.map((group, gi) => {
           const isActiveGroup = group.group === activeGroup
           const open = isActiveGroup || !collapsed.has(group.group)
@@ -100,7 +115,7 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
                 aria-expanded={open}
                 aria-controls={listId}
                 title={isActiveGroup ? 'Grup halaman yang sedang dibuka selalu terbuka' : undefined}
-                className="flex w-full items-center justify-between rounded-md px-2 py-1 text-xs font-semibold uppercase text-gray-400 hover:text-gray-600 disabled:cursor-default disabled:hover:text-gray-400 dark:text-gray-500 dark:hover:text-gray-300 dark:disabled:hover:text-gray-500"
+                className="flex w-full items-center justify-between rounded-md px-3 py-1 text-[11px] font-semibold tracking-wider text-slate-300 uppercase outline-hidden hover:text-white focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-white/70 disabled:cursor-default disabled:hover:text-slate-300 dark:text-slate-400 dark:disabled:hover:text-slate-400"
               >
                 <span>{group.group}</span>
                 <svg
@@ -118,23 +133,31 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
                 </svg>
               </button>
               {/* Disembunyikan (hidden), bukan di-unmount, biar aria-controls tetap nunjuk ke elemen yang ada */}
-              <div id={listId} hidden={!open} className="mt-1">
-                {group.items.map((item) => (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={onNavigate}
-                    className={({ isActive }) =>
-                      `block rounded-md px-3 py-2 text-sm font-medium ${
+              <div id={listId} hidden={!open} className="mt-1 space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive = item.path === activePath
+                  return (
+                    // outline-hidden (bukan outline-none): di Windows High Contrast
+                    // box-shadow/ring dibuang, outline transparan ini yang jadi
+                    // kelihatan — fokus keyboard nggak hilang.
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={onNavigate}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`flex items-center gap-3 rounded-full px-3 py-2 text-sm outline-hidden focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-white/80 ${
                         isActive
-                          ? 'bg-brand-navy/10 text-brand-navy dark:bg-brand-orange/10 dark:text-brand-orange'
-                          : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'
-                      }`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                ))}
+                          ? 'bg-iapa-orange font-bold text-iapa-navy-deep shadow-sm'
+                          : 'font-medium text-white/85 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <MenuIcon path={item.path} />
+                      <span className="min-w-0 truncate" title={item.label}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  )
+                })}
               </div>
             </div>
           )
@@ -152,9 +175,9 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
       <Link
         to="/changelog"
         onClick={onNavigate}
-        className="shrink-0 border-t border-gray-200 px-4 py-3 text-xs text-gray-400 hover:text-gray-600 dark:border-white/10 dark:text-gray-500 dark:hover:text-gray-300"
+        className="shrink-0 border-t border-white/10 px-4 py-3 text-xs text-white/70 outline-hidden hover:bg-white/5 hover:text-white focus-visible:bg-white/10 focus-visible:text-white focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-white/80"
       >
-        {APP_VERSION.label} <span className="opacity-60">·</span> Changelog
+        <span className="font-medium">{APP_VERSION.label}</span> <span aria-hidden="true">·</span> Changelog
       </Link>
     </aside>
   )

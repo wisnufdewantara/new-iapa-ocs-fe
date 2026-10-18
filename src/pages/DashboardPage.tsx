@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
 import type { SummaryStats } from '../types/stats'
@@ -6,6 +5,8 @@ import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuthStore } from '../stores/authStore'
 import { PesertaProgressDashboard } from './PesertaProgressDashboard'
 import { MyPaymentCards } from '../components/MyPaymentCards'
+import { StatTile } from '../components/dashboard/StatTile'
+import type { OutlineIconName } from '../components/OutlineIcon'
 
 interface Conference {
   conference_id: string
@@ -24,7 +25,7 @@ export function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
+      <h1 className="mb-4 text-xl font-bold text-iapa-navy dark:text-gray-100">Dashboard</h1>
       {role === 'Peserta' ? (
         <div className="flex flex-col gap-6">
           {/* Muncul cuma kalau ada tagihan yang masih nunggu bukti transfer */}
@@ -39,6 +40,16 @@ export function DashboardPage() {
       )}
     </div>
   )
+}
+
+// Ilustrasi kartu aksi per key item dari /stats/summary (key dari backend
+// StatsService.summary). Key baru yang belum didaftarin dapat bendera.
+const ACTION_ILLUSTRATION: Record<string, OutlineIconName> = {
+  proofs_awaiting: 'clock',
+  papers_waiting: 'documentText',
+  author_replies: 'chat',
+  papers_unassigned: 'userPlus',
+  unpaid: 'warning',
 }
 
 // Kartu "yang perlu ditindaklanjuti" buat role non-Peserta. Item yang
@@ -64,7 +75,7 @@ function ActionSummaryCards() {
     <section aria-labelledby="action-summary-title">
       <h2
         id="action-summary-title"
-        className="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500"
+        className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
       >
         Perlu ditindaklanjuti · conference aktif
       </h2>
@@ -74,29 +85,19 @@ function ActionSummaryCards() {
           // bukan hilang dan bikin bingung kartunya ke mana.
           const done = item.count === 0
           return (
-            <Link
+            <StatTile
               key={item.key}
               to={item.path}
-              className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-brand-navy/40 dark:border-white/10 dark:bg-brand-dark-surface dark:hover:border-brand-orange/40"
-            >
-              <span
-                className={`min-w-[2.5ch] text-3xl font-semibold ${
-                  done ? 'text-gray-300 dark:text-gray-600' : 'text-gray-800 dark:text-gray-100'
-                }`}
-              >
-                {item.count.toLocaleString('id-ID')}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span
-                  className={`block text-sm ${done ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}
-                >
-                  {item.label}
-                </span>
-                <span className="mt-0.5 block text-xs text-brand-navy dark:text-brand-orange">
+              label={item.label}
+              value={item.count.toLocaleString('id-ID')}
+              illustration={ACTION_ILLUSTRATION[item.key] ?? 'flag'}
+              muted={done}
+              hint={
+                <span className="font-medium text-iapa-navy dark:text-iapa-navy-light">
                   {done ? 'Beres' : 'Buka →'}
                 </span>
-              </span>
-            </Link>
+              }
+            />
           )
         })}
       </div>
@@ -118,9 +119,9 @@ function ConferenceListDashboard() {
         {data?.map((c) => (
           <div
             key={c.conference_id}
-            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-brand-dark-surface"
+            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-brand-dark-surface"
           >
-            <p className="font-semibold text-gray-800 dark:text-gray-100">{c.conference_name}</p>
+            <p className="font-semibold text-iapa-navy dark:text-gray-100">{c.conference_name}</p>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {new Date(c.conference_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
               {c.conference_end_date &&

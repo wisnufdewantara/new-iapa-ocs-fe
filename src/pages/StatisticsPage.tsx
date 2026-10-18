@@ -15,10 +15,14 @@ import { WeeklyColumns } from '../components/dashboard/WeeklyColumns'
 
 // Keputusan paper memang status (baik/buruk/menunggu), jadi pakai warna
 // status + ikon — bukan warna kategorikal — dan legendanya selalu ada.
+// Ditolak pakai warna 'serious' (merah spec), bukan 'critical': di dark
+// mode critical (#f49a9a) kedempetan sama oranye Menunggu (ΔE 12, gagal
+// validator); grafik ini nggak punya segmen "belum bayar" jadi merahnya
+// nggak bentrok. Ikonnya tetap 'critical'.
 const DECISION_SERIES: StackSeries[] = [
   { key: 'accepted', label: 'Diterima', color: 'good', icon: 'good' },
   { key: 'waiting', label: 'Menunggu', color: 'warning', icon: 'warning' },
-  { key: 'rejected', label: 'Ditolak', color: 'critical', icon: 'critical' },
+  { key: 'rejected', label: 'Ditolak', color: 'serious', icon: 'critical' },
 ]
 
 // Statistik conference — pengganti Conference Dashboard ocs2, plus
@@ -44,7 +48,7 @@ export function StatisticsPage() {
 
   return (
     <div className="viz-root">
-      <h1 className="mb-1 text-xl font-bold text-gray-800 dark:text-gray-100">Statistik</h1>
+      <h1 className="mb-1 text-xl font-bold text-iapa-navy dark:text-gray-100">Statistik</h1>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
         Paper, review, peserta, dan presensi. Angka agregat saja — detail per orang ada di halaman masing-masing.
       </p>
@@ -73,7 +77,7 @@ export function StatisticsPage() {
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <h2 className="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">{children}</h2>
+    <h2 className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">{children}</h2>
   )
 }
 
@@ -133,27 +137,31 @@ function StatisticsBody({ data }: { data: OverviewStats }) {
       <section>
         <SectionTitle>Paper</SectionTitle>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
-          <StatTile label="Total paper" value={formatNumber(papers.total)} />
+          <StatTile label="Total paper" illustration="documentText" value={formatNumber(papers.total)} />
           <StatTile
             label="Diterima"
             icon="good"
+            illustration="checkCircle"
             value={formatNumber(papers.accepted)}
             sub={`${share(papers.accepted, papers.total)} dari total`}
           />
           <StatTile
             label="Ditolak"
             icon="critical"
+            illustration="xCircle"
             value={formatNumber(papers.rejected)}
             sub={`${share(papers.rejected, papers.total)} dari total`}
           />
           <StatTile
             label="Menunggu keputusan"
             icon="warning"
+            illustration="clock"
             value={formatNumber(papers.waiting)}
             sub={`${share(papers.waiting, papers.total)} dari total`}
           />
           <StatTile
             label="LoA terkirim"
+            illustration="paperAirplane"
             value={formatNumber(papers.loaSent)}
             sub={`${share(papers.loaSent, papers.accepted)} dari paper diterima`}
           />
@@ -165,6 +173,7 @@ function StatisticsBody({ data }: { data: OverviewStats }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatTile
             label="Paper belum punya reviewer"
+            illustration="userPlus"
             value={formatNumber(review.unassignedWaiting)}
             muted={review.unassignedWaiting === 0}
             hint="Buka Assign Reviewer →"
@@ -172,6 +181,7 @@ function StatisticsBody({ data }: { data: OverviewStats }) {
           />
           <StatTile
             label="Penugasan lewat tenggat"
+            illustration="calendar"
             value={formatNumber(review.overdueAssignments)}
             muted={review.overdueAssignments === 0}
             hint="Paper masih menunggu, deadline reviewer sudah lewat →"
@@ -179,6 +189,7 @@ function StatisticsBody({ data }: { data: OverviewStats }) {
           />
           <StatTile
             label="Balasan penulis belum dijawab"
+            illustration="chat"
             value={formatNumber(review.feedbackAwaitingReply)}
             muted={review.feedbackAwaitingReply === 0}
             hint="Buka Review Paper →"
@@ -192,17 +203,25 @@ function StatisticsBody({ data }: { data: OverviewStats }) {
         <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
           <StatTile
             label="Presenter"
+            illustration="presentation"
             value={formatNumber(people.presenters)}
             sub="penulis unik di paper diterima"
           />
-          <StatTile label="Peserta" value={formatNumber(people.participants)} sub="terdaftar sebagai peserta" />
+          <StatTile
+            label="Peserta"
+            illustration="users"
+            value={formatNumber(people.participants)}
+            sub="terdaftar sebagai peserta"
+          />
           <StatTile
             label="Presenter member"
+            illustration="idCard"
             value={formatNumber(people.presenterMembers)}
             sub={`${share(people.presenterMembers, people.presenters)} dari presenter`}
           />
           <StatTile
             label="Peserta member"
+            illustration="idCard"
             value={formatNumber(people.participantMembers)}
             sub={`${share(people.participantMembers, people.participants)} dari peserta`}
           />

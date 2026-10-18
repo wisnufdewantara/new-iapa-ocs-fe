@@ -70,7 +70,7 @@ export function FinanceDashboardPage() {
 
   return (
     <div className="viz-root">
-      <h1 className="mb-1 text-xl font-bold text-gray-800 dark:text-gray-100">Dashboard Keuangan</h1>
+      <h1 className="mb-1 text-xl font-bold text-iapa-navy dark:text-gray-100">Dashboard Keuangan</h1>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
         Tagihan presenter (per paper) dan peserta. Semua nominal tanpa kode unik transfer.
       </p>
@@ -148,8 +148,14 @@ function FinanceBody({ data }: { data: FinanceStats }) {
 
   return (
     <>
-      <HeroFigure label="Dana terkumpul" value={rupiah(t.collected)}>
-        <Meter value={t.collectionRate} color="good" label="Dana terkumpul dibanding total tagihan" className="h-2.5" />
+      <HeroFigure label="Total Dana Terkumpul" value={rupiah(t.collected)}>
+        <Meter
+          value={t.collectionRate}
+          color="good"
+          trackColor="var(--viz-meter-track)"
+          label="Dana terkumpul dibanding total tagihan"
+          className="h-3"
+        />
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
           <strong className="font-semibold text-gray-800 dark:text-gray-100">{percent(t.collectionRate)}</strong> dari
           total tagihan <span title={rupiah(t.billed)}>{rupiah(t.billed)}</span> · {formatNumber(t.collectedCount)}{' '}
@@ -160,6 +166,7 @@ function FinanceBody({ data }: { data: FinanceStats }) {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
         <StatTile
           label="Total tagihan"
+          illustration="documentText"
           value={rupiahCompact(t.billed)}
           title={rupiah(t.billed)}
           sub={`${formatNumber(t.billedCount)} tagihan`}
@@ -168,6 +175,7 @@ function FinanceBody({ data }: { data: FinanceStats }) {
         <StatTile
           label="Terkumpul"
           icon="good"
+          illustration="handshake"
           value={rupiahCompact(t.collected)}
           title={rupiah(t.collected)}
           sub={`${formatNumber(t.collectedCount)} tagihan`}
@@ -175,6 +183,7 @@ function FinanceBody({ data }: { data: FinanceStats }) {
         <StatTile
           label="Menunggu verifikasi"
           icon="warning"
+          illustration="clock"
           value={rupiahCompact(t.awaitingVerification)}
           title={rupiah(t.awaitingVerification)}
           sub={`${formatNumber(t.awaitingCount)} bukti transfer`}
@@ -182,6 +191,7 @@ function FinanceBody({ data }: { data: FinanceStats }) {
         <StatTile
           label="Belum bayar"
           icon="serious"
+          illustration="warning"
           value={rupiahCompact(t.outstanding)}
           title={rupiah(t.outstanding)}
           sub={`${formatNumber(t.outstandingCount)} tagihan`}
@@ -194,6 +204,7 @@ function FinanceBody({ data }: { data: FinanceStats }) {
         <StatTile
           label="Belum dihitung"
           icon="neutral"
+          illustration="flag"
           value={formatNumber(t.uncalculatedCount)}
           sub="tagihan presenter"
           hint={
@@ -367,7 +378,7 @@ function FinanceBody({ data }: { data: FinanceStats }) {
 
 function StatusAmountTable({ rows, labels }: { rows: FinanceStats['statusBreakdown']; labels: string[] }) {
   return (
-    <div className="overflow-x-auto border-t border-gray-100 pt-3 dark:border-white/5">
+    <div className="relative overflow-x-auto border-t border-gray-100 pt-3 dark:border-white/5">
       <table className="w-full text-sm">
         <caption className="mb-1 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
           Nominal per status
@@ -462,10 +473,10 @@ function ActionTable({
   const total = rows.reduce((a, r) => a + r.amount, 0)
 
   return (
-    <section className="min-w-0 rounded-lg border border-gray-200 bg-white p-4 sm:p-5 dark:border-white/10 dark:bg-brand-dark-surface">
+    <section className="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-white/10 dark:bg-brand-dark-surface">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+          <h2 className="text-sm font-semibold text-iapa-navy dark:text-gray-100">
             {title}{' '}
             <span className="font-normal text-gray-500 dark:text-gray-400">
               · {formatNumber(rows.length)} tagihan · {rupiah(total)}
@@ -489,7 +500,9 @@ function ActionTable({
         <p className="text-sm text-gray-500 dark:text-gray-400">{emptyMessage}</p>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          {/* relative: span sr-only di header itu position:absolute — tanpa ini
+              dia lolos dari scroller dan bikin satu halaman geser ke samping di HP */}
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[56rem] text-sm">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-xs text-gray-500 dark:border-white/10 dark:text-gray-400">

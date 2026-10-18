@@ -37,9 +37,10 @@ export function LegacySyncButton() {
 
   return (
     <>
+      {/* Cuma dipakai di footer sidebar (latar navy) — warnanya ikut sidebar */}
       <button
         onClick={() => setOpen(true)}
-        className="block w-full shrink-0 border-t border-gray-200 px-4 py-2.5 text-left text-xs font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:border-white/10 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200"
+        className="block w-full shrink-0 border-t border-white/10 px-4 py-2.5 text-left text-xs font-medium text-white/80 outline-hidden hover:bg-white/10 hover:text-white focus-visible:bg-white/10 focus-visible:text-white focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-white/80"
       >
         &#x21bb; Sync dengan DB OCS Lawas
       </button>
