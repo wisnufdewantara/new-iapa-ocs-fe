@@ -8,6 +8,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-10-19',
+    items: [
+      'Presenter & peserta bisa unduh sertifikat sendiri di Dashboard (dibuat saat diunduh, tidak memakan storage)',
+      'Syarat unduh: sudah ditandai hadir, pembayaran terverifikasi, dan template sudah diatur panitia untuk conference itu',
+      'Tombol Kirim di Kelola Sertifikat sekarang mengirim email berisi link ke Dashboard, bukan lampiran PDF',
+    ],
+  },
+  {
     date: '2026-10-18',
     items: [
       'v1.0.1 — OCS baru sepenuhnya mandiri: sinkronisasi dengan OCS lawas (tombol sync, tarik bukti otomatis, push status) dihapus',

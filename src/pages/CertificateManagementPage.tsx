@@ -94,7 +94,7 @@ export function CertificateManagementPage() {
       api.post(`/certificates/${attendanceId}/send`, { type }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['certificates', conferenceId] })
-      toastSuccess('Sertifikat berhasil dikirim.')
+      toastSuccess('Email notifikasi sertifikat terkirim.')
     },
     onError: (err) => toastError(err, 'Gagal mengirim sertifikat.'),
   })
@@ -193,6 +193,12 @@ export function CertificateManagementPage() {
   return (
     <div>
       <h1 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-100">Kelola Sertifikat</h1>
+      <p className="mb-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-gray-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-gray-300">
+        Presenter &amp; peserta mengunduh sertifikat <strong>sendiri</strong> di Dashboard mereka (PDF dibuat saat diunduh,
+        tidak disimpan). Syaratnya: <strong>sudah ditandai hadir</strong>, <strong>pembayaran terverifikasi</strong>, dan
+        template sudah diatur untuk conference ini di <strong>Pengaturan Sertifikat → Pemetaan Conference</strong>. Tombol
+        Kirim di bawah mengirim email berisi link ke Dashboard (bukan lampiran PDF).
+      </p>
 
       <div className="mb-4">
         <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Pilih Conference</label>

@@ -37,6 +37,32 @@ interface MyPayments {
   participantPayment: { amount: number | null; status: string | null; sentInvoice?: boolean | null } | null
 }
 
+interface MyCertificate {
+  attendanceId: string | null
+  type: 'Participant' | 'Presenter'
+  conferenceName: string
+  paperTitle: string | null
+  eligible: boolean
+  reason: string | null
+}
+
+// Status langkah "Sertifikat" dari /my-certificates — syaratnya hadir +
+// lunas + panitia sudah merilis template buat conference ini (dicek di
+// backend). PDF dibuat saat diklik, nggak ada file yang disimpan.
+function certStep(cert: MyCertificate | undefined, paymentVerified: boolean) {
+  if (cert?.eligible && cert.attendanceId) {
+    return {
+      state: 'done' as StepState,
+      desc: 'Sertifikat kamu sudah siap diunduh.',
+      links: [{ label: 'Download Sertifikat', href: `/my-certificates/${cert.attendanceId}/download` }],
+    }
+  }
+  if (!paymentVerified) {
+    return { state: 'upcoming' as StepState, desc: 'Muncul setelah pembayaran diverifikasi.', links: [] }
+  }
+  return { state: 'current' as StepState, desc: cert?.reason ?? 'Menunggu presensi (belum ditandai hadir)', links: [] }
+}
+
 type StepState = 'done' | 'current' | 'upcoming' | 'blocked'
 
 interface StepLink {
@@ -156,6 +182,11 @@ export function PesertaProgressDashboard() {
 
   const { data: activeConferences, isLoading: loadingActive } = useActiveConferences()
 
+  const { data: myCerts } = useQuery({
+    queryKey: ['my-certificates'],
+    queryFn: async () => (await api.get<MyCertificate[]>('/my-certificates')).data,
+  })
+
   const isLoading = loadingPaper || loadingParticipant || loadingPayments || loadingActive
 
   if (isLoading) {
@@ -214,7 +245,10 @@ export function PesertaProgressDashboard() {
           : teamPayment
             ? 'current'
             : 'upcoming'
-    const certState: StepState = teamPayment?.status === 'verified' ? 'current' : 'upcoming'
+    const cert = certStep(
+      myCerts?.find((c) => c.type === 'Presenter' && c.paperTitle === paper.paperTitle),
+      teamPayment?.status === 'verified',
+    )
 
     // Link LOA — hanya muncul kalau paper Accepted
     const loaLinks: StepLink[] =
@@ -237,9 +271,6 @@ export function PesertaProgressDashboard() {
       return []
     })()
 
-    // Sertifikat — placeholder non-clickable
-    const certLinks: StepLink[] =
-      certState !== 'upcoming' ? [{ label: 'Sertifikat (Mendatang)', href: '#', disabled: true }] : []
 
     return (
       <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
@@ -287,9 +318,9 @@ export function PesertaProgressDashboard() {
         />
         <Step
           title="Sertifikat"
-          desc={certState === 'current' ? 'Akan dikirim admin setelah acara selesai.' : 'Muncul setelah pembayaran diverifikasi.'}
-          state={certState}
-          links={certLinks}
+          desc={cert.desc}
+          state={cert.state}
+          links={cert.links}
         />
 
         {teamPayment && teamPayment.status !== 'verified' && (
@@ -304,7 +335,10 @@ export function PesertaProgressDashboard() {
   // Jalur participant biasa (join, bukan presenter).
   const p = currentParticipant!
   const paymentState: StepState = p.payment_status === 'verified' ? 'done' : p.total_amount != null ? 'current' : 'upcoming'
-  const certState: StepState = p.payment_status === 'verified' ? 'current' : 'upcoming'
+  const cert = certStep(
+    myCerts?.find((c) => c.type === 'Participant'),
+    p.payment_status === 'verified',
+  )
 
   // Link invoice / kuitansi untuk participant
   const participantPaymentLinks: StepLink[] = (() => {
@@ -322,8 +356,6 @@ export function PesertaProgressDashboard() {
     return []
   })()
 
-  const certLinks: StepLink[] =
-    certState !== 'upcoming' ? [{ label: 'Sertifikat (Mendatang)', href: '#', disabled: true }] : []
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-brand-dark-surface">
@@ -346,9 +378,9 @@ export function PesertaProgressDashboard() {
       />
       <Step
         title="Sertifikat"
-        desc={certState === 'current' ? 'Akan dikirim admin setelah acara selesai.' : 'Muncul setelah pembayaran diverifikasi.'}
-        state={certState}
-        links={certLinks}
+        desc={cert.desc}
+        state={cert.state}
+        links={cert.links}
       />
 
       {p.payment_status !== 'verified' && (

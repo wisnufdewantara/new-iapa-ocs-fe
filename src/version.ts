@@ -4,8 +4,8 @@
 // "Beta" dibuang. Naikkan 'number' pas ada rilis (semver: patch buat
 // perbaikan, minor buat fitur baru), update 'date' ke tanggal rilisnya.
 export const APP_VERSION = {
-  number: '1.0.1',
-  date: '2026-10-18',
+  number: '1.1.0',
+  date: '2026-10-19',
   get label() {
     const d = new Date(this.date)
     const yymmdd = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0')
