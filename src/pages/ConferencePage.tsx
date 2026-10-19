@@ -13,6 +13,7 @@ interface Conference {
   conference_date: string
   conference_end_date: string | null
   status: ConferenceStatus
+  description: string | null
 }
 
 interface ConferenceSetting {
@@ -38,6 +39,8 @@ export function ConferencePage() {
   const [endDate, setEndDate] = useState('')
   const [subThemes, setSubThemes] = useState('')
   const [status, setStatus] = useState<ConferenceStatus>('coming_soon')
+  const [description, setDescription] = useState('')
+  const [descriptionDraft, setDescriptionDraft] = useState('')
   const [settingsConferenceId, setSettingsConferenceId] = useState('')
   const [deadlineDraft, setDeadlineDraft] = useState('')
 
@@ -57,6 +60,7 @@ export function ConferencePage() {
           .map((s) => s.trim())
           .filter(Boolean),
         status,
+        description: description.trim() || undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conferences'] })
@@ -67,6 +71,7 @@ export function ConferencePage() {
       setEndDate('')
       setSubThemes('')
       setStatus('coming_soon')
+      setDescription('')
     },
     onError: (err) => toastError(err, 'Gagal membuat conference. Cek kembali data yang diisi.'),
   })
@@ -99,6 +104,18 @@ export function ConferencePage() {
   })
 
   const deadlineSetting = conferenceSettings?.find((s) => s.setting_key === 'payment_deadline_text')
+
+  // Deskripsi acara (tampil di homepage) — kolom conference.description,
+  // diedit lewat PATCH conference yang sama dengan status.
+  const saveDescriptionMutation = useMutation({
+    mutationFn: (value: string) => api.patch(`/conferences/${settingsConferenceId}`, { description: value }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conferences'] })
+      queryClient.invalidateQueries({ queryKey: ['conferences', 'active'] })
+      toastSuccess('Deskripsi acara berhasil disimpan.')
+    },
+    onError: (err) => toastError(err, 'Gagal menyimpan deskripsi acara.'),
+  })
 
   useEffect(() => {
     setDeadlineDraft(deadlineSetting?.setting_value ?? '')
@@ -213,6 +230,11 @@ export function ConferencePage() {
 
   const settingsConference = data?.find((c) => c.conference_id === settingsConferenceId)
 
+  // Isi ulang draft deskripsi tiap ganti conference yang lagi diatur.
+  useEffect(() => {
+    setDescriptionDraft(settingsConference?.description ?? '')
+  }, [settingsConference?.description, settingsConferenceId])
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -268,6 +290,19 @@ export function ConferencePage() {
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Deskripsi Acara (tampil di homepage)
+              </label>
+              <textarea
+                rows={5}
+                maxLength={3000}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tema, penyelenggara, tanggal & tempat acara. Enter = paragraf baru."
+              />
+            </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Status di Homepage</label>
               <select
@@ -305,6 +340,27 @@ export function ConferencePage() {
               Tutup
             </button>
           </div>
+          <div className="mb-5">
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Deskripsi Acara (tampil di homepage)
+            </label>
+            <textarea
+              rows={6}
+              maxLength={3000}
+              value={descriptionDraft}
+              onChange={(e) => setDescriptionDraft(e.target.value)}
+              placeholder="Tema, penyelenggara, tanggal & tempat acara. Enter = paragraf baru."
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-white/15 dark:bg-brand-dark-surface dark:text-gray-100"
+            />
+            <button
+              disabled={descriptionDraft === (settingsConference.description ?? '') || saveDescriptionMutation.isPending}
+              onClick={() => saveDescriptionMutation.mutate(descriptionDraft)}
+              className="btn btn-primary mt-2"
+            >
+              {saveDescriptionMutation.isPending ? 'Menyimpan...' : 'Simpan Deskripsi'}
+            </button>
+          </div>
+
           <div className="flex flex-wrap items-center gap-3">
             <label className="w-40 text-sm font-medium text-gray-700 dark:text-gray-300">Tenggat Pembayaran</label>
             <input
