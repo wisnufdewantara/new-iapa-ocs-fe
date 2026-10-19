@@ -10,6 +10,8 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-10-19',
     items: [
+      'v1.2.0 — Homepage baru yang ramah pengguna senior: huruf & tombol lebih besar, kontras tinggi, banner "Konferensi Sedang Berlangsung" hijau, kontak sekretariat',
+      'Deskripsi acara: bisa diisi saat membuat event & diedit di Pengaturan Acara, tampil di homepage',
       'v1.1.1 — Tombol Publish / Unpublish sertifikat per conference: memetakan template saja belum merilis apa-apa, peserta baru bisa unduh setelah di-Publish',
       'Presenter & peserta bisa unduh sertifikat sendiri di Dashboard (dibuat saat diunduh, tidak memakan storage)',
       'Syarat unduh: sudah ditandai hadir, pembayaran terverifikasi, dan template sudah diatur panitia untuk conference itu',
