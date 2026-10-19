@@ -196,7 +196,8 @@ export function CertificateManagementPage() {
       <p className="mb-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-gray-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-gray-300">
         Presenter &amp; peserta mengunduh sertifikat <strong>sendiri</strong> di Dashboard mereka (PDF dibuat saat diunduh,
         tidak disimpan). Syaratnya: <strong>sudah ditandai hadir</strong>, <strong>pembayaran terverifikasi</strong>, dan
-        template sudah diatur untuk conference ini di <strong>Pengaturan Sertifikat → Pemetaan Conference</strong>. Tombol
+        template sudah diatur <strong>dan di-Publish</strong> untuk conference ini di{' '}
+        <strong>Pengaturan Sertifikat → Pemetaan Conference</strong>. Tombol
         Kirim di bawah mengirim email berisi link ke Dashboard (bukan lampiran PDF).
       </p>
 

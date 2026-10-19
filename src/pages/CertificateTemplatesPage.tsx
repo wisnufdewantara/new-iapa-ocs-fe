@@ -27,6 +27,7 @@ interface Mappings {
   bestPaper: string | null
   bestPresenter: string | null
   defaultTemplate: { id: string; name: string } | null
+  published: boolean
 }
 
 type MappingKey = 'participant' | 'presenter' | 'bestPaper' | 'bestPresenter'
@@ -188,6 +189,7 @@ function TemplateGrid() {
 }
 
 function MappingPanel() {
+  const queryClient = useQueryClient()
   const [conferenceId, setConferenceId] = useState('')
 
   const { data: conferences } = useQuery({
@@ -230,6 +232,18 @@ function MappingPanel() {
     onError: (err) => toastError(err, 'Gagal menyimpan pemetaan.'),
   })
 
+  // Publish = baru boleh diunduh peserta. Memetakan template saja BELUM
+  // merilis apa-apa (desain bisa masih diutak-atik).
+  const publishMutation = useMutation({
+    mutationFn: (published: boolean) =>
+      api.put(`/certificate-templates/mappings/${conferenceId}/publish`, { published }),
+    onSuccess: (_res, published) => {
+      queryClient.invalidateQueries({ queryKey: ['certificate-template-mappings', conferenceId] })
+      toastSuccess(published ? 'Sertifikat dirilis — peserta yang memenuhi syarat sudah bisa unduh.' : 'Sertifikat ditarik — unduhan ditutup.')
+    },
+    onError: (err) => toastError(err, 'Gagal mengubah status rilis.'),
+  })
+
   return (
     <div>
       <div className="mb-4">
@@ -250,6 +264,51 @@ function MappingPanel() {
           ))}
         </select>
       </div>
+
+      {conferenceId && mappings && (
+        <div className="mb-4 max-w-md rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">Status rilis sertifikat</p>
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                mappings.published
+                  ? 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300'
+              }`}
+            >
+              {mappings.published ? '● Dirilis' : '○ Belum dirilis'}
+            </span>
+          </div>
+          <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+            {mappings.published
+              ? 'Presenter & peserta yang sudah hadir dan lunas bisa mengunduh sertifikat di Dashboard mereka.'
+              : 'Belum ada yang bisa mengunduh. Atur & cek template dulu (Preview PDF), lalu klik Publish kalau desain sudah final.'}
+          </p>
+          {mappings.published ? (
+            <button
+              onClick={() => {
+                if (confirm('Tarik sertifikat? Peserta tidak bisa mengunduh lagi sampai di-publish ulang.')) publishMutation.mutate(false)
+              }}
+              disabled={publishMutation.isPending}
+              className="btn btn-outline btn-sm"
+            >
+              Unpublish
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                if (confirm('Publish sertifikat untuk conference ini? Peserta yang sudah hadir & lunas langsung bisa mengunduh.'))
+                  publishMutation.mutate(true)
+              }}
+              disabled={publishMutation.isPending || !(mappings.participant || mappings.presenter)}
+              title={!(mappings.participant || mappings.presenter) ? 'Petakan template Peserta/Presenter dulu' : undefined}
+              className="btn btn-primary btn-sm"
+            >
+              Publish Sertifikat
+            </button>
+          )}
+        </div>
+      )}
 
       {conferenceId && mappings && (
         <div className="max-w-md rounded-lg border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-brand-dark-surface">
